@@ -1,7 +1,7 @@
 // A visitor's like on one step. POST leaves it or takes it back.
 // What is kept: the step number and a random id the visitor's own browser made up. Nothing else about the visitor.
-// The likes are kept outside the repository, so the builder does not read them. Counts are not given out
-// unless the keeper opens them (LIKES_OPEN), and they are never written into the record.
+// The likes are kept outside the repository, so the builder does not read them. A step's count is given only to
+// a visitor who has liked that step, and never written into the record. LIKES_OPEN lets the keeper open all of them.
 
 function json(body, status) {
   return new Response(JSON.stringify(body), {
@@ -20,21 +20,36 @@ async function stepCount(context) {
   }
 }
 
-export async function onRequestGet(context) {
-  const { env } = context;
-  if (!env.KNOCKS) return json({ state: "off" });
-  if (env.LIKES_OPEN !== "1") return json({ state: "closed" });
-  const counts = {};
+async function tally(env, prefix) {
+  const counts = {}, by = {};
   let cursor;
   do {
-    const page = await env.KNOCKS.list({ prefix: "liked:", cursor });
+    const page = await env.KNOCKS.list({ prefix, cursor });
     for (const k of page.keys) {
-      const n = k.name.split(":")[1];
+      const [, n, v] = k.name.split(":");
       counts[n] = (counts[n] || 0) + 1;
+      (by[v] = by[v] || {})[n] = true;
     }
     cursor = page.list_complete ? undefined : page.cursor;
   } while (cursor);
-  return json({ state: "open", counts });
+  return { counts, by };
+}
+
+export async function onRequestGet(context) {
+  const { env, request } = context;
+  if (!env.KNOCKS) return json({ state: "off" });
+  if (env.LIKES_OPEN === "1") return json({ state: "open", counts: (await tally(env, "liked:")).counts });
+  // a visitor is shown the counts of the steps they have liked, and no others
+  const v = new URL(request.url).searchParams.get("v") || "";
+  if (!/^[a-f0-9]{32}$/.test(v)) return json({ state: "closed" });
+  try {
+    const { counts, by } = await tally(env, "liked:");
+    const mine = {};
+    for (const n of Object.keys(by[v] || {})) mine[n] = counts[n];
+    return json({ state: "mine", counts: mine });
+  } catch (e) {
+    return json({ state: "closed" });
+  }
 }
 
 export async function onRequestPost(context) {
@@ -57,5 +72,11 @@ export async function onRequestPost(context) {
     return json({ state: "taken back" });
   }
   await env.KNOCKS.put(key, new Date().toISOString().slice(0, 10));
-  return json({ state: "kept" });
+  // the count of this one step, for the one who has just liked it; a listing can lag behind a write, so their own like is counted in
+  let count = 1;
+  try {
+    const { counts, by } = await tally(env, "liked:" + n + ":");
+    count = (counts[n] || 0) + (by[v] ? 0 : 1);
+  } catch (e) {}
+  return json({ state: "kept", count });
 }
