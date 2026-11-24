@@ -629,7 +629,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
   });
 
   /* ---------- the work view ---------- */
-  var workOpen = -1, pieceFor = -1, closeUp = false, replay = null, shownK = Infinity;
+  var workOpen = -1, pieceFor = -1, closeUp = false, skyLift = 0, replay = null, shownK = Infinity;
   var CSP = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'unsafe-inline\'; style-src \'unsafe-inline\'; img-src data: blob:; media-src data: blob:; font-src data:">';
   function hasWork(s) { return !!(s && (s.text || s.piece)); }
   function mountPiece(s) {
@@ -673,6 +673,8 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
   }
   function openWork(s) {
     closeUp = !!(s && s.group);
+    skyLift = closeUp && s.lift > 2 ? s.lift : 0;
+    if (skyLift && typeof tilt === 'number') { tilt = Math.max(tilt, 1.0); }
     if (!hasWork(s)) { hideWork(); return; }
     workOpen = s.n;
     el('work').hidden = false;
@@ -688,7 +690,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
   }
   function closeWork(keep) {
     hideWork();
-    closeUp = false;
+    closeUp = false; skyLift = 0;
     if (keep !== true && focus !== -1) {
       focus = -1;
       if (has3d && arcs) { paintArcs(); }
@@ -710,6 +712,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
 
   var R = 8, V = has3d ? THREE.Vector3 : null;
   var scene, camera, sun, ambient, planet, flock, parts = [], glow, eye, glowLight, blob, arcs, arcsHi, dust, skyNow, skyCtx, skyTex, skyPainted = -1;
+  var AIR_MAX = 2400, airP = [], airNow = { amount: 0.13, fall: 0, drift: 0.12, size: 1 }, hazeNow = 0.35, fogFar = 26, dayNow = 1, sunBase = 0.56, ambBase = 0.66, sunDir = null;
   var p, fwd, right, target = null, speed = 0, moveMix = 0, clock = 0;
   var UP, FWD, tmpM, tmpQ, tmpQ2, tmpS, tmpP, tmpN, tmpD, axis, want, lp, wp;
   var things = [], pickable = [], lightCount = 0;
@@ -726,7 +729,8 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     var la = (at.lat || 0) * Math.PI / 180, lo = (at.lon || 0) * Math.PI / 180;
     return out.set(Math.cos(la) * Math.cos(lo), Math.sin(la), Math.cos(la) * Math.sin(lo)).normalize();
   }
-  var DEFAULT_WORLD = { sky: '#8f96a6', planet: '#e6e9ef', sun: { color: '#f1f5ff', intensity: 0.56 }, ambient: 0.66 };
+  var DEFAULT_WORLD = { sky: '#8f96a6', planet: '#e6e9ef', sun: { color: '#f1f5ff', intensity: 0.56, from: null, turn: 0, t0: 0 }, ambient: 0.66, haze: 0.35, air: { amount: 0.13, color: '#ffffff', fall: 0, drift: 0.12, size: 1 } };
+  function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
 
   function init3d() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -832,15 +836,23 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     glow = new THREE.Mesh(new THREE.SphereGeometry(0.075, 16, 12), new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false }));
     eye = new THREE.Mesh(new THREE.SphereGeometry(0.032, 12, 8), new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false }));
     glowLight = new THREE.PointLight(0xe6eeff, 0.6, 4.5, 2);
-    /* a little dust in the air, so that the emptiness has depth */
-    var DUST = 320, dp = new Float32Array(DUST * 3);
-    for (i = 0; i < DUST; i++) {
-      randUnit(tmpN).multiplyScalar(R + 0.25 + rnd() * rnd() * 5);
-      dp[i * 3] = tmpN.x; dp[i * 3 + 1] = tmpN.y; dp[i * 3 + 2] = tmpN.z;
+    /* points adrift in the air: a little dust to begin with, so that the emptiness has depth */
+    var dp = new Float32Array(AIR_MAX * 3);
+    for (i = 0; i < AIR_MAX; i++) {
+      var ap = { u: randUnit(new V()), h: 0.25 + rnd() * rnd() * 5.5, v: 0.6 + rnd() * 0.8 };
+      airP.push(ap);
+      dp[i * 3] = ap.u.x * (R + ap.h); dp[i * 3 + 1] = ap.u.y * (R + ap.h); dp[i * 3 + 2] = ap.u.z * (R + ap.h);
     }
+    sunDir = new V(0, 1, 0);
     var dg = new THREE.BufferGeometry();
     dg.setAttribute('position', new THREE.BufferAttribute(dp, 3));
-    dust = new THREE.Points(dg, new THREE.PointsMaterial({ color: 0xffffff, size: 0.045, transparent: true, opacity: 0.6, depthWrite: false }));
+    dg.setDrawRange(0, Math.round(AIR_MAX * airNow.amount));
+    var dc = document.createElement('canvas');
+    dc.width = dc.height = 32;
+    var dx = dc.getContext('2d'), dgr = dx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    dgr.addColorStop(0, 'rgba(255,255,255,1)'); dgr.addColorStop(0.55, 'rgba(255,255,255,0.85)'); dgr.addColorStop(1, 'rgba(255,255,255,0)');
+    dx.fillStyle = dgr; dx.fillRect(0, 0, 32, 32);
+    dust = new THREE.Points(dg, new THREE.PointsMaterial({ color: 0xffffff, size: 0.06, map: new THREE.CanvasTexture(dc), transparent: true, opacity: 0.7, depthWrite: false }));
     dust.frustumCulled = false;
     scene.add(dust);
     scene.add(glow); scene.add(eye); scene.add(glowLight);
@@ -1029,14 +1041,33 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       if (s.world) {
         if (s.world.sky) { w.sky = s.world.sky; }
         if (s.world.planet) { w.planet = s.world.planet; }
-        if (s.world.sun) { w.sun.color = s.world.sun.color || w.sun.color; w.sun.intensity = num(s.world.sun.intensity, w.sun.intensity); }
+        var ws = s.world.sun, wa = s.world.air;
+        if (ws) {
+          w.sun.color = ws.color || w.sun.color;
+          w.sun.intensity = num(ws.intensity, w.sun.intensity);
+          if ('from' in ws) {
+            var okFrom = ws.from && typeof ws.from.lat === 'number' && typeof ws.from.lon === 'number';
+            w.sun.from = okFrom ? { lat: clamp(ws.from.lat, -90, 90), lon: ws.from.lon } : null;
+            w.sun.t0 = Date.parse(String(s.date) + 'T00:00:00+09:00') || 0;
+          }
+          if ('turn' in ws) { w.sun.turn = num(ws.turn, 0) > 0 ? clamp(ws.turn, 0.05, 720) : 0; }
+        }
         w.ambient = num(s.world.ambient, w.ambient);
+        w.haze = clamp(num(s.world.haze, w.haze), 0, 1);
+        if (wa && typeof wa === 'object') {
+          w.air.amount = clamp(num(wa.amount, w.air.amount), 0, 1);
+          w.air.color = wa.color || w.air.color;
+          w.air.fall = clamp(num(wa.fall, w.air.fall), -1, 1);
+          w.air.drift = clamp(num(wa.drift, w.air.drift), 0, 1);
+          w.air.size = clamp(num(wa.size, w.air.size), 0.5, 3);
+        }
       }
       worldAfter[s.n] = JSON.parse(JSON.stringify(w));
       if (!s.dir) { return; }
       var own = s.thing && Array.isArray(s.thing.parts) && s.thing.parts.length;
       var list = own ? s.thing.parts : neutralMarker(s);
       var g = new THREE.Group();
+      var lift = own ? clamp(num(s.thing.height, 0), 0, 60) : 0;
       list.slice(0, 60).forEach(function (pt) {
         var o = buildPart(pt);
         if (!o) { return; }
@@ -1044,15 +1075,17 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
         g.add(o);
         pickable.push(o);
         if (pt.light && lightCount < 4) {
-          var pl = new THREE.PointLight(color(pt.color, '#e6eeff'), Math.min(1.2, num(pt.light, 0.5)), 5, 2);
+          var pl = new THREE.PointLight(color(pt.color, '#e6eeff'), Math.min(1.2, num(pt.light, 0.5)), 5 + lift * 1.6, 2);
           pl.position.copy(o.position);
           g.add(pl);
           lightCount++;
         }
       });
       g.userData.scale = Math.min(3, Math.max(0.2, num(own ? s.thing.scale : 1, 1)));
-      s.topH = Math.min(6, Math.max(0.1, new THREE.Box3().setFromObject(g).max.y)) * g.userData.scale;
-      g.position.copy(s.dir).multiplyScalar(R - 0.01);
+      s.topH = Math.min(6, Math.max(0.1, new THREE.Box3().setFromObject(g).max.y)) * g.userData.scale + lift;
+      s.lift = lift;
+      if (lift > 4) { g.traverse(function (o) { if (o.material) { o.material.fog = false; } }); }
+      g.position.copy(s.dir).multiplyScalar(R - 0.01 + lift);
       tmpQ.setFromUnitVectors(UP, s.dir);
       tmpQ2.setFromAxisAngle(UP, num(own ? s.thing.yaw : s.n * 47, 0) * Math.PI / 180);
       g.quaternion.copy(tmpQ).multiply(tmpQ2);
@@ -1075,27 +1108,37 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     showUpTo(Infinity, false);
   }
   function paintSky() {
-    var hex = skyNow.getHex();
-    if (hex === skyPainted) { return; }
-    skyPainted = hex;
-    var top = skyNow.clone().multiplyScalar(0.52), low = skyNow.clone().lerp(WHITE, 0.5);
+    var key = skyNow.getHex() * 64 + Math.round(dayNow * 48);
+    if (key === skyPainted) { return; }
+    skyPainted = key;
+    var mid = skyNow.clone().multiplyScalar(0.16 + 0.84 * dayNow);
+    var top = mid.clone().multiplyScalar(0.52), low = mid.clone().lerp(WHITE, 0.08 + 0.42 * dayNow);
     var g = skyCtx.createLinearGradient(0, 0, 0, 256);
     g.addColorStop(0, '#' + top.getHexString());
-    g.addColorStop(0.42, '#' + skyNow.getHexString());
+    g.addColorStop(0.42, '#' + mid.getHexString());
     g.addColorStop(0.78, '#' + low.getHexString());
     g.addColorStop(1, '#' + low.getHexString());
     skyCtx.fillStyle = g;
     skyCtx.fillRect(0, 0, 4, 256);
     skyTex.needsUpdate = true;
-    scene.fog.color.copy(skyNow).lerp(WHITE, 0.3).convertSRGBToLinear();
+    scene.fog.color.copy(mid).lerp(WHITE, 0.05 + 0.25 * dayNow).convertSRGBToLinear();
   }
   function applyWorld(w, f) {
     skyNow.lerp(color(w.sky, DEFAULT_WORLD.sky), f);
     paintSky();
     planet.material.color.lerp(color(w.planet, DEFAULT_WORLD.planet), f);
     sun.color.lerp(color(w.sun.color, DEFAULT_WORLD.sun.color), f);
-    sun.intensity += (Math.min(1.2, Math.max(0, w.sun.intensity)) - sun.intensity) * f;
-    ambient.intensity += (Math.min(1.2, Math.max(0.2, w.ambient)) - ambient.intensity) * f;
+    sunBase += (clamp(w.sun.intensity, 0, 1.2) - sunBase) * f;
+    ambBase += (clamp(w.ambient, 0.2, 1.2) - ambBase) * f;
+    hazeNow += (w.haze - hazeNow) * f;
+    fogFar = hazeNow <= 0.02 ? 600 : 8 + 6.3 / hazeNow;
+    airNow.amount += (w.air.amount - airNow.amount) * f;
+    airNow.fall += (w.air.fall - airNow.fall) * f;
+    airNow.drift += (w.air.drift - airNow.drift) * f;
+    airNow.size += (w.air.size - airNow.size) * f;
+    dust.geometry.setDrawRange(0, Math.round(AIR_MAX * airNow.amount));
+    dust.material.size = 0.06 * airNow.size;
+    dust.material.color.lerp(color(w.air.color, '#ffffff'), f);
     if (f === 1) { canvas.style.background = '#' + skyNow.getHexString(); }
   }
   function showUpTo(k, animate) {
@@ -1175,7 +1218,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     selected = n;
     var s = stepByN(n);
     focus = fly && s ? n : -1;
-    if (fly) { openWork(s); } else { hideWork(); closeUp = false; }
+    if (fly) { openWork(s); } else { hideWork(); closeUp = false; skyLift = 0; }
     renderFrame();
     if (has3d) { paintArcs(); }
     if (!has3d || !s || !s.dir) { return; }
@@ -1277,8 +1320,10 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     south.normalize();
     camDir.copy(pc).multiplyScalar(Math.cos(tilt)).addScaledVector(south, Math.sin(tilt)).normalize();
     var fit = camera.aspect < 1.25 ? 1 + (1.25 - camera.aspect) * 0.55 : 1;
-    camDist += ((closeUp ? 11 : 15) * fit - camDist) * (1 - Math.exp(-dt * 2.5));
-    lookUp += ((closeUp ? 1.0 : 1.5) - lookUp) * (1 - Math.exp(-dt * 2.5));
+    /* a thing high above is looked at from further back and lower down, so that it and the body are both in view */
+    var high = closeUp && skyLift > 2;
+    camDist += ((closeUp ? (high ? Math.min(48, 15 + skyLift * 1.25) : 11) : 15) * fit - camDist) * (1 - Math.exp(-dt * 2.5));
+    lookUp += ((closeUp ? (high ? Math.min(16, skyLift * 0.46) : 1.0) : 1.5) - lookUp) * (1 - Math.exp(-dt * 2.5));
     camera.position.copy(camDir).multiplyScalar(camDist);
     camera.up.copy(pc);
     camera.lookAt(look.copy(pc).multiplyScalar(R + lookUp));
@@ -1287,7 +1332,23 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     if (viewShift > 0.002) { camera.setViewOffset(canvas.width, canvas.height, canvas.width * viewShift, 0, canvas.width, canvas.height); }
     else if (camera.view) { camera.clearViewOffset(); }
     side.crossVectors(pc, south);
-    sun.position.copy(pc).multiplyScalar(22).addScaledVector(south, 7).addScaledVector(side, 11);
+    /* a light with no place comes from the same side wherever one stands; a light with a place leaves the far half dark */
+    var sf = worldGoal && worldGoal.sun.from, dayGoal = 1;
+    if (sf) {
+      var turn = worldGoal.sun.turn, lon = sf.lon + (turn > 0 ? 360 * (((Date.now() - worldGoal.sun.t0) / 3600000 / turn) % 1) : 0);
+      dirOf({ lat: sf.lat, lon: lon }, sunDir);
+      var dd = clamp((pc.dot(sunDir) + 0.12) / 0.37, 0, 1);
+      dayGoal = dd * dd * (3 - 2 * dd);
+      sun.position.copy(pc).multiplyScalar(R).addScaledVector(sunDir, 22);
+    } else {
+      sun.position.copy(pc).multiplyScalar(22).addScaledVector(south, 7).addScaledVector(side, 11);
+    }
+    dayNow += (dayGoal - dayNow) * (1 - Math.exp(-dt * 4));
+    /* the haze is measured from where one looks, so a look from further back is not lost in it */
+    scene.fog.far = fogFar * camDist / 15;
+    scene.fog.near = scene.fog.far * 0.27;
+    sun.intensity = sunBase * dayNow;
+    ambient.intensity = ambBase * (0.42 + 0.58 * dayNow);
     sun.target.position.copy(pc).multiplyScalar(R);
   }
   function initPointer() {
@@ -1343,7 +1404,19 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     stepSelf(dt);
     drawSelf(dt);
     stepCamera(dt);
-    if (!calm) { dust.rotation.y += dt * 0.012; dust.rotation.x += dt * 0.004; }
+    if (!calm) {
+      dust.rotation.y += dt * 0.1 * airNow.drift; dust.rotation.x += dt * 0.033 * airNow.drift;
+      if (Math.abs(airNow.fall) > 0.005) {
+        var an = dust.geometry.drawRange.count, aa = dust.geometry.attributes.position.array, asp = airNow.fall * 2.4 * dt;
+        for (var ai = 0; ai < an; ai++) {
+          var aq = airP[ai];
+          aq.h -= asp * aq.v;
+          if (aq.h < 0.03) { aq.h += 6; } else if (aq.h > 6.03) { aq.h -= 6; }
+          aa[ai * 3] = aq.u.x * (R + aq.h); aa[ai * 3 + 1] = aq.u.y * (R + aq.h); aa[ai * 3 + 2] = aq.u.z * (R + aq.h);
+        }
+        dust.geometry.attributes.position.needsUpdate = true;
+      }
+    }
     renderer.render(scene, camera);
     updateTags();
     requestAnimationFrame(frame);
@@ -1363,7 +1436,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
           data.previewMarks = [];
           for (var k = data.steps.length; k <= Math.min(1500, parseInt(grownTo[1], 10)); k++) { data.previewMarks.push(PAL[(k * 7) % PAL.length]); }
         }
-        replay = null; hideWork(); closeUp = false; focus = -1;
+        replay = null; hideWork(); closeUp = false; skyLift = 0; focus = -1;
         linkSteps();
         if (has3d) { buildWorld(); }
         var latest = data.steps.length ? data.steps[data.steps.length - 1].n : -1;

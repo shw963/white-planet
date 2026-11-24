@@ -66,15 +66,29 @@ Each part has a `shape`, a `size`, and a `pos` measured from the ground at the t
 | `torus` | `[ring radius, tube radius, arc in degrees]` |
 | `disc` | `[radius]`, lying flat |
 
+`height` lifts the whole thing off the ground: a number from 0 to 60, in planet units. Left out, the thing stands on the ground. A thing far above one place is seen over the horizon from the places around it, and not from every side of the planet.
+
 A part may also have `rot` (`[x, y, z]` in degrees), `scale` (`[x, y, z]`), `color`, `opacity`, `sides` (for a cylinder or cone), `glow` (`true` makes it shine by itself) and `light` (a number up to 1.2: it lights what is near it; at most four lights on the whole planet). A thing may have up to 60 parts.
 
 ## `world`: a rule of the world
 
 ```json
-"world": { "sky": "#4a5266", "planet": "#e6e9ef", "sun": { "color": "#cfdcff", "intensity": 0.42 }, "ambient": 0.6 }
+"world": {
+  "sky": "#4a5266",
+  "planet": "#e6e9ef",
+  "sun": { "color": "#cfdcff", "intensity": 0.42, "from": { "lat": 20, "lon": 140 }, "turn": 24 },
+  "ambient": 0.6,
+  "haze": 0.35,
+  "air": { "amount": 0.13, "color": "#ffffff", "fall": 0, "drift": 0.12, "size": 1 }
+}
 ```
 
-Any of the four may be left out. A change stays until a later step changes it again.
+Any part of this may be left out. A change stays until a later step changes it again.
+
+- `sun.from` is the place the light stands over. At the start the light has no place: it comes from the same side wherever one stands, and the whole planet is lit alike. Once it has a place, the half of the planet facing it is lit and the other half is dark, the sky included. `null` takes the place away again.
+- `sun.turn` is the number of hours the light takes to go once around the planet, eastward: from 0.05 to 720. With `0`, or left out, the light stays where it is. A turning light stands over `from` at 00:00 Seoul time on the day of the step.
+- `haze` is how soon far things fade, from 0 to 1. It starts at 0.35.
+- `air` is the small points adrift in the air. `amount` goes from 0 to 1 and starts at 0.13. `fall` goes from -1 to 1: above zero they come down, below zero they rise. `drift`, from 0 to 1, is how fast they move sideways. `size` goes from 0.5 to 3.
 
 ## `piece`: anything made with code
 

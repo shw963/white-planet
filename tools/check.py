@@ -56,6 +56,8 @@ def check_thing(th):
         return bad("thing must be an object")
     if "at" in th:
         check_place(th["at"], "thing.at")
+    if "height" in th and not (is_num(th["height"]) and 0 <= th["height"] <= 60):
+        bad("thing.height must be a number from 0 to 60")
     parts = th.get("parts")
     if not isinstance(parts, list) or not 1 <= len(parts) <= 60:
         return bad("thing.parts must hold 1 to 60 parts")
@@ -82,8 +84,25 @@ def check_world(w):
     if sun is not None:
         if not isinstance(sun, dict):
             bad("world.sun must be an object")
-        elif "color" in sun and not (isinstance(sun["color"], str) and HEX.match(sun["color"])):
-            bad("world.sun.color must be #rrggbb")
+        else:
+            if "color" in sun and not (isinstance(sun["color"], str) and HEX.match(sun["color"])):
+                bad("world.sun.color must be #rrggbb")
+            if sun.get("from") is not None:
+                check_place(sun["from"], "world.sun.from")
+            if "turn" in sun and not (is_num(sun["turn"]) and (sun["turn"] == 0 or 0.05 <= sun["turn"] <= 720)):
+                bad("world.sun.turn must be 0, or hours from 0.05 to 720")
+    if "haze" in w and not (is_num(w["haze"]) and 0 <= w["haze"] <= 1):
+        bad("world.haze must be a number from 0 to 1")
+    air = w.get("air")
+    if air is not None:
+        if not isinstance(air, dict):
+            bad("world.air must be an object")
+        else:
+            for k, lo, hi in (("amount", 0, 1), ("fall", -1, 1), ("drift", 0, 1), ("size", 0.5, 3)):
+                if k in air and not (is_num(air[k]) and lo <= air[k] <= hi):
+                    bad("world.air.%s must be a number from %s to %s" % (k, lo, hi))
+            if "color" in air and not (isinstance(air["color"], str) and HEX.match(air["color"])):
+                bad("world.air.color must be #rrggbb")
 
 
 def check_piece(p):

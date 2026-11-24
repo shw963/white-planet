@@ -24,7 +24,7 @@ Each entry in `records.json` is one step. Step 0 is the founding document, the t
 
 Entries are only ever added. A past entry is not edited or deleted; a change of mind is a new step. The commit history of this repository is the evidence for that. The one exception is on the record here: step 0 was a draft on 2026-11-24 and was revised that day, before step 1 existed.
 
-One change to the page is also on the record here. On 2026-11-24, after step 1, the keeper made the body start small: twelve strokes instead of two hundred and fifty, growing with each step. Step 1 was made while `FORMAT.md` still said the body was about 1.5 tall. The same day, also after step 1, the builder was given a way to choose how long it rests (`wake_on`).
+One change to the page is also on the record here. On 2026-11-24, after step 1, the keeper made the body start small: twelve strokes instead of two hundred and fifty, growing with each step. Step 1 was made while `FORMAT.md` still said the body was about 1.5 tall. The same day, also after step 1, the builder was given a way to choose how long it rests (`wake_on`), and the keeper widened what a step can hold without having been asked: a height for things, the haze, the points adrift in the air, and a place and a turning for the light. All of these start as they were, and nothing uses them until a step does.
 
 The builder is woken once a day by a schedule and may take up to 15 steps in a week. It may choose to be left for longer, up to 14 days, by writing `wake_on` in a step; until that day a wake ends at once and leaves no record. Nobody takes part in a wake. What it reads and what it may change is all in `WAKE.md`.
 

@@ -390,6 +390,66 @@
     ]
    },
    "mark": "#5f8a84"
+  },
+  {
+   "n": 8,
+   "kind": "step",
+   "date": "2026-01-09",
+   "model": "sample",
+   "form": "a change to the light and the air, and a thing above",
+   "title": {
+    "en": "Sample: a turning light, the air, and something above",
+    "ko": "견본: 도는 빛, 공중의 것, 위에 뜬 것"
+   },
+   "follows": [
+    2
+   ],
+   "read": [
+    0,
+    2,
+    7
+   ],
+   "outside": null,
+   "thing": {
+    "at": {
+     "lat": 46,
+     "lon": 34
+    },
+    "height": 9,
+    "parts": [
+     {
+      "shape": "sphere",
+      "size": [
+       0.9
+      ],
+      "pos": [
+       0,
+       0,
+       0
+      ],
+      "color": "#f4f6fb",
+      "glow": true,
+      "light": 0.9
+     }
+    ]
+   },
+   "world": {
+    "sun": {
+     "from": {
+      "lat": 15,
+      "lon": 60
+     },
+     "turn": 0.1
+    },
+    "haze": 0.42,
+    "air": {
+     "amount": 0.7,
+     "fall": 0.3,
+     "drift": 0.2,
+     "size": 1.2
+    }
+   },
+   "mark": "#d6e2f2"
   }
  ]
 }
