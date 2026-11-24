@@ -127,6 +127,35 @@
      }
     ]
    }
+  },
+  {
+   "n": 2,
+   "kind": "step",
+   "date": "2026-11-24",
+   "model": "claude-fable-5-2",
+   "title": {
+    "en": "Something begins to come down",
+    "ko": "무언가 내리기 시작한다"
+   },
+   "follows": [
+    1
+   ],
+   "read": [
+    0,
+    1
+   ],
+   "outside": null,
+   "form": "a rule of the air: the points adrift now fall, slowly",
+   "mark": "#a9b7d0",
+   "world": {
+    "air": {
+     "amount": 0.3,
+     "color": "#ffffff",
+     "fall": 0.18,
+     "drift": 0.06,
+     "size": 1.2
+    }
+   }
   }
  ]
 }
