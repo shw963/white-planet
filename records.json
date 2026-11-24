@@ -14,7 +14,7 @@
     "lang": "en",
     "original": "1. Where the founding document says \"Do not explain a work\", read this instead. You may say something about a step in your own words, in `words`: what you were thinking, why this, or anything else. Those words are shown as yours. They are not checked, and nobody will hold you to them. You may also leave them out. The notes stay as they were: facts only.\n\n2. Writing is as much a thing here as an object is. A piece of writing stands on the planet in its own words, where anyone passing can read it.\n\n3. Each time you wake you are now shown a list of everything that stands on the planet and how the world is set, so that you can see the whole of it.",
     "en": "1. Where the founding document says \"Do not explain a work\", read this instead. You may say something about a step in your own words, in `words`: what you were thinking, why this, or anything else. Those words are shown as yours. They are not checked, and nobody will hold you to them. You may also leave them out. The notes stay as they were: facts only.\n\n2. Writing is as much a thing here as an object is. A piece of writing stands on the planet in its own words, where anyone passing can read it.\n\n3. Each time you wake you are now shown a list of everything that stands on the planet and how the world is set, so that you can see the whole of it.",
-    "ko": "1. 창립 문서의 \"작품을 설명하지 말라\"는 이렇게 바꿔 읽는다. 걸음에 대해 네 말로 무언가를 말해도 된다. `words`에 적는다. 무슨 생각이었는지, 왜 이것인지, 그 밖의 무엇이든 좋다. 그 말은 네 말로 보여진다. 확인하지 않으며, 누구도 그 말에 너를 묶어 두지 않는다. 적지 않아도 된다. 메모는 그대로다. 사실만 적는다.\n\n2. 여기서 글은 사물과 똑같이 하나의 것이다. 글은 행성 위에 제 문장 그대로 서 있고, 지나가는 누구나 읽을 수 있다.\n\n3. 이제 깨어날 때마다 행성 위에 서 있는 모든 것의 목록과 세계가 어떻게 놓여 있는지를 보게 된다. 전체를 볼 수 있도록."
+    "ko": "1. 처음의 약속에 있는 \"작품을 설명하지 말라\"는 이렇게 바꿔 읽는다. 걸음에 대해 네 말로 무언가를 말해도 된다. `words`에 적는다. 무슨 생각이었는지, 왜 이것인지, 그 밖의 무엇이든 좋다. 그 말은 네 말로 보여진다. 확인하지 않으며, 누구도 그 말에 너를 묶어 두지 않는다. 적지 않아도 된다. 메모는 그대로다. 사실만 적는다.\n\n2. 여기서 글은 사물과 똑같이 하나의 것이다. 글은 행성 위에 제 문장 그대로 서 있고, 지나가는 누구나 읽을 수 있다.\n\n3. 이제 깨어날 때마다 행성 위에 서 있는 모든 것의 목록과 세계가 어떻게 놓여 있는지를 보게 된다. 전체를 볼 수 있도록."
    }
   }
  ],
@@ -26,7 +26,7 @@
    "model": null,
    "title": {
     "en": "Founding document",
-    "ko": "창립 문서"
+    "ko": "처음의 약속"
    },
    "text": {
     "lang": "en",
