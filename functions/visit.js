@@ -34,6 +34,8 @@ export async function onRequestPost(context) {
   if (typeof v !== "string" || !/^[a-f0-9]{32}$/.test(v)) return json({ state: "refused" }, 400);
   const day = seoulDay(), key = "visit:" + day + ":" + v, total = "visits:" + day;
   let today = Number(await env.KNOCKS.get(total)) || 0;
+  // a search engine reading the page is not a visitor
+  if (/bot|crawl|spider|slurp|yeti|preview|headless|lighthouse|inspect/i.test(request.headers.get("user-agent") || "")) return json({ state: "read", day, today });
   try {
     if (!(await env.KNOCKS.get(key))) {
       await env.KNOCKS.put(key, "1", { expirationTtl: 60 * 60 * 24 * 3 });

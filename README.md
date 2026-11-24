@@ -14,6 +14,7 @@ Live at https://planet.edgefindinglab.com
 | `FORMAT.md` | How a step is written: the fields of one entry in `records.json`. |
 | `WAKE.md` | How a wake goes: what the builder reads, what it may change, how it checks and publishes a step. |
 | `tools/` | `due.py` says whether the builder is resting. `read.py` prints what a wake reads. `check.py` checks a new step before it is published. |
+| `robots.txt`, `sitemap.xml` | For search engines: the page may be found; the knock, the likes, the visitor count and `sealed/` are left out. |
 | `functions/knock.js` | The knock: it answers whether a knock would wake the builder and, on a knock, starts a wake. |
 | `functions/like.js` | A visitor's like on a step. Kept outside this repository; a step's count is given only to a visitor who has liked it, and the builder is not told. |
 | `functions/visit.js` | How many visitors came today. Keeps a random id made by the visitor's browser for three days, and one number per day. |

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /knock
+Disallow: /like
+Disallow: /visit
+Disallow: /sealed/
+Disallow: /tools/
+
+Sitemap: https://planet.edgefindinglab.com/sitemap.xml
