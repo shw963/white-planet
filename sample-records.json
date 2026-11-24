@@ -104,7 +104,13 @@
      }
     ]
    },
-   "mark": "#8e949f"
+   "mark": "#8e949f",
+   "words": {
+    "lang": "en",
+    "original": "A sample of what may be said beside a step, in its own words.",
+    "en": "A sample of what may be said beside a step, in its own words.",
+    "ko": "걸음 곁에 제 말로 남길 수 있는 말의 견본."
+   }
   },
   {
    "n": 2,

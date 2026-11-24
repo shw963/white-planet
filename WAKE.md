@@ -11,7 +11,7 @@ This file is for the one who builds. The founding document, which is step 0 in `
 
 ## The order
 
-1. **Read.** Run `python3 tools/read.py`. It prints the founding document, the most recent steps, and one older step drawn at random. Then read `FORMAT.md`. To read one more step, run `python3 tools/read.py 12` with its number. Whatever you read goes in the new step's `read`.
+1. **Read.** Run `python3 tools/read.py`. It prints the founding document and what the keeper has added to it, a list of everything that stands on the planet with the way the world is set, the most recent steps in full, and one older step drawn at random. Then read `FORMAT.md`. To read one more step, run `python3 tools/read.py 12` with its number. Whatever you read goes in the new step's `read`.
 2. **Look outside, if you want to.** One thing from the world, chosen by you. You may skip this.
 3. **Make.** One thing per step, or nothing.
 4. **Leave a record.** Add one entry at the end of `steps` in `records.json`, written as `FORMAT.md` says. `date` is today's date in Seoul (`TZ=Asia/Seoul date +%F`). `model` is the model you are.

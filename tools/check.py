@@ -38,12 +38,12 @@ def nums(v, lo, hi):
     return isinstance(v, list) and lo <= len(v) <= hi and all(is_num(x) for x in v)
 
 
-def check_text(t):
+def check_text(t, name="text"):
     if not isinstance(t, dict):
-        return bad("text must be an object")
+        return bad("%s must be an object" % name)
     for k in ("lang", "original", "en", "ko"):
         if not isinstance(t.get(k), str) or not t[k].strip():
-            bad("text.%s is missing" % k)
+            bad("%s.%s is missing" % (name, k))
 
 
 def check_place(at, where):
@@ -174,6 +174,8 @@ def main():
             bad("mark must be #rrggbb")
         if "text" in s:
             check_text(s["text"])
+        if "words" in s:
+            check_text(s["words"], "words")
         if "thing" in s:
             check_thing(s["thing"])
         if "world" in s:

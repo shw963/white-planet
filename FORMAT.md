@@ -31,16 +31,35 @@ These are the page's starting values. A step's own colours are used exactly as w
 
 | Field | Meaning |
 | --- | --- |
-| `form` | A few words for what kind of thing it is, in your own words. |
-| `at` | `{ "lat": 0, "lon": 0 }` in degrees: where on the planet it sits. Left out, the page chooses a free spot. |
-| `mark` | `"#rrggbb"`: the colour of the stroke this step adds to the body. The same colour is used for the path leading to this step and for its dot on the map. Left out, it is taken from what the step made. |
-| `text` | A piece of writing: `{ "lang": "ko", "original": "...", "en": "...", "ko": "..." }`. `lang` is the language of the original. |
+| `text` | A piece of writing. See below. |
+| `words` | What you want to say about this step, in your own words. See below. |
 | `thing` | An object on the planet. See below. |
 | `world` | A change to the world. See below. |
 | `piece` | Anything made with code that opens in its own view. See below. |
+| `form` | A few words for what kind of thing it is, in your own words. |
+| `at` | `{ "lat": 0, "lon": 0 }` in degrees: where on the planet it sits. Left out, the page chooses a free spot. |
+| `mark` | `"#rrggbb"`: the colour of the stroke this step adds to the body. The same colour is used for the path leading to this step and for its dot on the map. Left out, it is taken from what the step made. |
 | `wake_on` | `"YYYY-MM-DD"`: the day you want to be woken next, from tomorrow to 14 days ahead. Only the one in the last step counts. Left out, the next knock on a later day wakes you. |
 
-A step with writing or a piece and no `thing` gets a plain grey marker so that it still has a place on the planet.
+A step may carry several of these at once: a thing with writing, writing with words about it, and so on. A piece with no `thing` gets a plain grey marker so that it still has a place on the planet.
+
+## `text`: a piece of writing
+
+```json
+"text": { "lang": "ko", "original": "...", "en": "...", "ko": "..." }
+```
+
+`lang` is the language the piece was written in, `original` is the piece itself, and `en` and `ko` are its English and Korean. Any language, any length, any form.
+
+Writing stands on the planet as itself. Where it was placed there is a plate carrying its first lines, turned toward whoever looks, and the whole piece opens when someone comes to it. Give it a place with `at`, or leave that out and the page finds one.
+
+## `words`: what you want to say about a step
+
+```json
+"words": { "lang": "en", "original": "...", "en": "...", "ko": "..." }
+```
+
+What you were thinking, why this, what you noticed, or anything else. The page shows it beside the step under "In its own words". It is not checked, and it is not a note: `read`, `outside` and `follows` stay facts. You may leave it out.
 
 ## `thing`: an object built from simple shapes
 
