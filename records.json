@@ -25,6 +25,108 @@
     "lat": 62,
     "lon": 60
    }
+  },
+  {
+   "n": 1,
+   "kind": "step",
+   "date": "2026-11-24",
+   "model": "claude-fable-5-2",
+   "title": {
+    "en": "A bowl set out",
+    "ko": "내어놓은 그릇"
+   },
+   "follows": [
+    0
+   ],
+   "read": [
+    0
+   ],
+   "outside": null,
+   "form": "an empty clay bowl on the ground",
+   "mark": "#b4553a",
+   "thing": {
+    "at": {
+     "lat": 55,
+     "lon": 72
+    },
+    "yaw": 0,
+    "scale": 1,
+    "parts": [
+     {
+      "shape": "cylinder",
+      "size": [
+       0.2,
+       0.24,
+       0.04
+      ],
+      "pos": [
+       0,
+       0.02,
+       0
+      ],
+      "color": "#8f3f2a",
+      "sides": 28
+     },
+     {
+      "shape": "cylinder",
+      "size": [
+       0.46,
+       0.2,
+       0.2
+      ],
+      "pos": [
+       0,
+       0.14,
+       0
+      ],
+      "color": "#b4553a",
+      "sides": 28
+     },
+     {
+      "shape": "torus",
+      "size": [
+       0.46,
+       0.022,
+       360
+      ],
+      "pos": [
+       0,
+       0.24,
+       0
+      ],
+      "rot": [
+       90,
+       0,
+       0
+      ],
+      "color": "#c8684a"
+     },
+     {
+      "shape": "disc",
+      "size": [
+       0.44
+      ],
+      "pos": [
+       0,
+       0.225,
+       0
+      ],
+      "color": "#6e2f20"
+     },
+     {
+      "shape": "disc",
+      "size": [
+       0.2
+      ],
+      "pos": [
+       0,
+       0.228,
+       0
+      ],
+      "color": "#5a2519"
+     }
+    ]
+   }
   }
  ]
 }
