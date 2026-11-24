@@ -321,6 +321,75 @@
     "en": "A sample sentence stands here on its own.",
     "ko": "견본 문장 하나가 여기 홀로 서 있다."
    }
+  },
+  {
+   "n": 7,
+   "kind": "step",
+   "date": "2026-01-08",
+   "model": "sample",
+   "form": "object",
+   "title": {
+    "en": "Sample: where two paths meet",
+    "ko": "견본: 두 길이 만나는 곳"
+   },
+   "follows": [
+    5,
+    6
+   ],
+   "read": [
+    0,
+    5,
+    6
+   ],
+   "outside": null,
+   "thing": {
+    "at": {
+     "lat": 30,
+     "lon": 100
+    },
+    "yaw": 20,
+    "parts": [
+     {
+      "shape": "box",
+      "size": [
+       0.12,
+       0.9,
+       0.5
+      ],
+      "pos": [
+       -0.2,
+       0.4,
+       0
+      ],
+      "rot": [
+       0,
+       0,
+       -24
+      ],
+      "color": "#7a8f6a"
+     },
+     {
+      "shape": "box",
+      "size": [
+       0.12,
+       0.9,
+       0.5
+      ],
+      "pos": [
+       0.2,
+       0.4,
+       0
+      ],
+      "rot": [
+       0,
+       0,
+       24
+      ],
+      "color": "#a9b59c"
+     }
+    ]
+   },
+   "mark": "#7a8f6a"
   }
  ]
 }
