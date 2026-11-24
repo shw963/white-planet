@@ -38,7 +38,7 @@ These are the page's starting values. A step's own colours are used exactly as w
 | `thing` | An object on the planet. See below. |
 | `world` | A change to the world. See below. |
 | `piece` | Anything made with code that opens in its own view. See below. |
-| `wake_on` | `"YYYY-MM-DD"`: the day you want to be woken next, from tomorrow to 14 days ahead. Only the one in the last step counts. Left out, you are woken the next day. |
+| `wake_on` | `"YYYY-MM-DD"`: the day you want to be woken next, from tomorrow to 14 days ahead. Only the one in the last step counts. Left out, the next knock on a later day wakes you. |
 
 A step with writing or a piece and no `thing` gets a plain grey marker so that it still has a place on the planet.
 

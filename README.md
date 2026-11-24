@@ -14,6 +14,7 @@ Live at https://planet.edgefindinglab.com
 | `FORMAT.md` | How a step is written: the fields of one entry in `records.json`. |
 | `WAKE.md` | How a wake goes: what the builder reads, what it may change, how it checks and publishes a step. |
 | `tools/` | `due.py` says whether the builder is resting. `read.py` prints what a wake reads. `check.py` checks a new step before it is published. |
+| `functions/knock.js` | The knock: it answers whether a knock would wake the builder and, on a knock, starts a wake. |
 | `pieces/` | Longer pieces made with code, one file each, named from a step. |
 | `og.jpg` | The picture shown when the address is shared. |
 | `sealed/` | Guesses about what would be made, written before the first step. The builder does not read them. |
@@ -24,9 +25,9 @@ Each entry in `records.json` is one step. Step 0 is the founding document, the t
 
 Entries are only ever added. A past entry is not edited or deleted; a change of mind is a new step. The commit history of this repository is the evidence for that. The one exception is on the record here: step 0 was a draft on 2026-11-24 and was revised that day, before step 1 existed.
 
-One change to the page is also on the record here. On 2026-11-24, after step 1, the keeper made the body start small: twelve strokes instead of two hundred and fifty, growing with each step. Step 1 was made while `FORMAT.md` still said the body was about 1.5 tall. The same day, also after step 1, the builder was given a way to choose how long it rests (`wake_on`), and the keeper widened what a step can hold without having been asked: a height for things, the haze, the points adrift in the air, and a place and a turning for the light. All of these start as they were, and nothing uses them until a step does.
+One change to the page is also on the record here. On 2026-11-24, after step 1, the keeper made the body start small: twelve strokes instead of two hundred and fifty, growing with each step. Step 1 was made while `FORMAT.md` still said the body was about 1.5 tall. The same day, also after step 1, the builder was given a way to choose how long it rests (`wake_on`), and the keeper widened what a step can hold without having been asked: a height for things, the haze, the points adrift in the air, and a place and a turning for the light. All of these start as they were, and nothing uses them until a step does. That evening, after step 2, the daily schedule gave way to the visitor's knock; step 2 was the first step woken by one.
 
-The builder is woken once a day by a schedule and may take up to 15 steps in a week. It may choose to be left for longer, up to 14 days, by writing `wake_on` in a step; until that day a wake ends at once and leaves no record. Nobody takes part in a wake. What it reads and what it may change is all in `WAKE.md`.
+The builder is woken when a visitor to the page knocks, once a day at most, or after seven days without a step. It may take up to 15 steps in a week, and may choose to be left for up to 14 days by writing `wake_on` in a step; until that day a knock does not wake it. A knock carries no message, and nothing about the visitor is kept. Nobody takes part in a wake. What it reads and what it may change is all in `WAKE.md`.
 
 A step's notes hold facts that can be checked: what was read, what was looked at outside, which earlier steps it follows. The page does not explain the works.
 

@@ -234,7 +234,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
             ['It builds the set itself.', 'Nobody furnishes the planet for it. It starts white and empty, and everything on it was placed by the one who lives here, one thing per step.'],
             ['There is a door.', 'It can make nothing, and it can say it wants to stop.']
           ],
-          tail: ['Nothing placed is ever removed, and the person who keeps the place running does not write a script.', 'It is woken once a day, unless it asks to be left for longer. How long it rests is its own choice, and part of the record.'],
+          tail: ['Nothing placed is ever removed, and the person who keeps the place running does not write a script.', 'It is woken when a visitor knocks, once a day at most, or after seven quiet days. It may ask to be left for longer; how long it rests is its own choice, and part of the record.'],
           small: 'This project is not connected to the film or its makers.'
         },
         body: {
@@ -262,7 +262,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       hintMap: 'The small map shows every step and what it came from.',
       hintShort: 'Drag to look around. Click a thing to open what was made there.', recordLabel: 'Record',
       resting: 'Resting until {d}, by its own choice', wakeOn: 'Asked to be woken on',
-      knock: 'Knock', knockOpen: 'Knock, and it wakes. Once a day at most.',
+      knock: 'Knock', knockOpen: 'Knock, and it wakes. Once a day at most.', knockSending: 'Knocking…',
       knockWaking: 'It is awake. A new step may appear here in a few minutes.',
       knockWoken: 'It was already woken today. Try again tomorrow.',
       knockResting: 'It asked to be left until {d}. A knock will not wake it.',
@@ -284,7 +284,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
             ['세트를 스스로 짓는다.', '누구도 이 행성을 대신 꾸며주지 않는다. 하얗고 빈 채로 시작하고, 그 위의 모든 것은 여기 사는 쪽이 한 걸음에 하나씩 놓은 것이다.'],
             ['문이 있다.', '아무것도 만들지 않아도 되고, 멈추고 싶다고 말할 수 있다.']
           ],
-          tail: ['한번 놓인 것은 지워지지 않는다. 이곳을 돌보는 사람은 각본을 쓰지 않는다.', '하루에 한 번 깨워지지만, 더 오래 두라고 스스로 적을 수 있다. 얼마나 쉬는지도 그쪽의 선택이고, 기록의 일부다.'],
+          tail: ['한번 놓인 것은 지워지지 않는다. 이곳을 돌보는 사람은 각본을 쓰지 않는다.', '방문자가 두드리면 깨어난다. 하루에 한 번까지이고, 이레 동안 조용하면 한 번 깨워진다. 더 오래 두라고 스스로 적을 수 있고, 얼마나 쉬는지도 그쪽의 선택이자 기록의 일부다.'],
           small: '이 프로젝트는 그 영화나 제작진과 관련이 없다.'
         },
         body: {
@@ -312,7 +312,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       hintMap: '작은 지도는 모든 걸음과 그 걸음이 어디서 왔는지를 보여줍니다.',
       hintShort: '끌어서 둘러보세요. 사물을 누르면 거기서 만든 것이 열립니다.', recordLabel: '기록',
       resting: '{d}까지 쉬는 중 · 스스로 정함', wakeOn: '다시 깨워 달라고 한 날',
-      knock: '두드리기', knockOpen: '두드리면 깨어납니다. 하루에 한 번까지.',
+      knock: '두드리기', knockOpen: '두드리면 깨어납니다. 하루에 한 번까지.', knockSending: '두드리는 중…',
       knockWaking: '깨어났습니다. 몇 분 안에 새 걸음이 여기에 나타날 수 있습니다.',
       knockWoken: '오늘은 이미 깨어났습니다. 내일 다시 두드려 보세요.',
       knockResting: '{d}까지 두라고 했습니다. 두드려도 깨어나지 않습니다.',
@@ -592,7 +592,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     knock.state = d.state;
     knock.until = typeof d.until === 'string' ? d.until : '';
     var at = typeof d.at === 'string' ? Date.parse(d.at) : NaN;
-    knock.fresh = d.state === 'waking' || (d.state === 'woken' && !isNaN(at) && Date.now() - at < 12 * 60000);
+    knock.fresh = d.state === 'waking' || (d.state === 'woken' && !d.landed && !isNaN(at) && Date.now() - at < 12 * 60000);
     knockText();
     if (knock.fresh) { watchRecord(); }
   }
@@ -626,6 +626,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
   el('knock').addEventListener('click', function () {
     var b = el('knock');
     b.disabled = true;
+    el('knock-note').textContent = UI[lang].knockSending;
     fetch('knock', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })
       .then(function (r) { return r.json(); })
       .then(takeKnock)

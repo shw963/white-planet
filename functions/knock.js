@@ -41,11 +41,15 @@ async function look(context) {
   const last = steps[steps.length - 1];
   if (typeof last.wake_on === "string" && last.wake_on > today) return { state: "resting", until: last.wake_on };
   const woke = await env.KNOCKS.get("woke:" + today);
-  if (woke) return { state: "woken", at: woke };
+  if (woke) {
+    // the value is "time|steps there were at the knock", so the page can tell whether the new step has landed
+    const [at, had] = woke.split("|");
+    return { state: "woken", at, landed: steps.length > Number(had || 0) };
+  }
   const monday = weekStart(today), sunday = addDays(monday, 6);
   const thisWeek = steps.slice(1).filter((s) => s && typeof s.date === "string" && s.date >= monday && s.date <= sunday).length;
   if (thisWeek >= WEEK_BUDGET) return { state: "spent" };
-  return { state: "open" };
+  return { state: "open", steps: steps.length };
 }
 
 export async function onRequestGet(context) {
@@ -59,7 +63,7 @@ export async function onRequestPost(context) {
   const seen = await look(context);
   if (seen.state !== "open") return json(seen);
   const today = seoulDay(), at = new Date().toISOString();
-  await env.KNOCKS.put("woke:" + today, at, { expirationTtl: 60 * 60 * 24 * 3 });
+  await env.KNOCKS.put("woke:" + today, at + "|" + seen.steps, { expirationTtl: 60 * 60 * 24 * 3 });
   let ok = false;
   try {
     const res = await fetch(env.FIRE_URL, {
