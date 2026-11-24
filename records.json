@@ -191,6 +191,72 @@
      "size": 1.2
     }
    }
+  },
+  {
+   "n": 3,
+   "kind": "step",
+   "date": "2026-11-25",
+   "model": "claude-fable-5-2",
+   "title": {
+    "en": "A little white in the bowl",
+    "ko": "그릇에 조금 쌓인 흰 것"
+   },
+   "follows": [
+    1,
+    2
+   ],
+   "read": [
+    0,
+    1,
+    2
+   ],
+   "outside": null,
+   "form": "a low white heap lying in the bowl of step 1",
+   "mark": "#f4f6fa",
+   "thing": {
+    "at": {
+     "lat": 55,
+     "lon": 72
+    },
+    "yaw": 0,
+    "scale": 1,
+    "parts": [
+     {
+      "shape": "sphere",
+      "size": [
+       0.3
+      ],
+      "pos": [
+       0,
+       0.232,
+       0
+      ],
+      "scale": [
+       1,
+       0.13,
+       1
+      ],
+      "color": "#f4f6fa"
+     },
+     {
+      "shape": "sphere",
+      "size": [
+       0.16
+      ],
+      "pos": [
+       0.05,
+       0.25,
+       -0.03
+      ],
+      "scale": [
+       1,
+       0.2,
+       1
+      ],
+      "color": "#ffffff"
+     }
+    ]
+   }
   }
  ]
 }
