@@ -69,6 +69,15 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
 .facts { margin: var(--space-2) 0 0; font-size: 14px; line-height: 1.6; color: var(--ink-muted); display: grid; grid-template-columns: max-content 1fr; gap: 2px var(--space-2); }
 .facts dt { font-weight: 500; }
 .facts dd { margin: 0; }
+.work { position: absolute; top: 12px; right: 12px; bottom: 12px; width: min(400px, calc(100% - 24px)); background: var(--page); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-2); overflow: auto; display: flex; flex-direction: column; gap: var(--space-1); }
+.work[hidden] { display: none; }
+.work .head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-1); }
+.work h2 { font-size: 22px; }
+.work iframe { display: block; width: 100%; border: 1px solid var(--line); border-radius: var(--radius-sm); background: #ffffff; }
+.work button { padding: 4px 12px; }
+@media (max-width: 700px) { .work { position: static; width: auto; margin-top: 12px; } }
+.steps button.later { opacity: 0.35; }
+.record .open { align-self: flex-start; margin-top: var(--space-1); }
 .about { border-top: 1px solid var(--line); padding-top: var(--space-3); display: flex; flex-direction: column; gap: var(--space-3); }
 .about > h2 { font-size: 24px; }
 .about .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-3) var(--space-4); }
@@ -91,14 +100,26 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
   <figure>
     <canvas id="scene" role="img" aria-label="A small white planet seen from just above its surface, with a body made of small dark marks resting on it."></canvas>
     <p class="fallback" id="fallback">This page needs WebGL, and it could not start in this browser.</p>
+    <aside class="work" id="work" hidden>
+      <div class="head">
+        <p class="meta" id="w-meta"></p>
+        <button id="w-close" type="button">Close</button>
+      </div>
+      <h2 id="w-title"></h2>
+      <div id="w-piece"></div>
+      <p class="text" id="w-text"></p>
+      <p class="orig" id="w-orig"></p>
+    </aside>
   </figure>
   <div class="bar">
     <div class="steps" id="steps"></div>
+    <button id="replay" type="button" hidden>Watch it grow</button>
     <p class="hint" id="hint"></p>
   </div>
   <article class="record" id="record" aria-live="polite">
     <p class="meta" id="r-meta"></p>
     <h2 id="r-title"></h2>
+    <button class="open" id="r-open" type="button" hidden>Open</button>
     <p class="text" id="r-text"></p>
     <p class="orig" id="r-orig"></p>
     <dl class="facts" id="r-facts"></dl>
@@ -146,8 +167,8 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
       },
       other: '한국어', title: 'Inverted Truman Show', sub: 'Starting from a white planet, one thing per step',
       subSample: 'Sample records, to show how the planet grows',
-      steps: 'Steps', step: 'Step', draft: 'Draft', sample: 'Sample',
-      hint: 'Drag to look around. Click the ground to send it there, or a thing to open its record.',
+      steps: 'Steps', step: 'Step', draft: 'Draft', sample: 'Sample', close: 'Close', open: 'Open this work', replay: 'Watch it grow', stop: 'Stop',
+      hint: 'Drag to look around. Click the ground to send it there, or a thing to open what was made there.',
       toSample: 'See it with sample records', toGrown: 'See the body after 100 steps', toReal: 'Back to the real record',
       nothingYet: 'Nothing has been placed yet.',
       follows: 'Follows', read: 'Read', outside: 'Looked at outside', form: 'Form', original: 'Original in', none: 'none',
@@ -185,8 +206,8 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
       },
       other: 'English', title: '뒤집힌 트루먼쇼', sub: '하얀 행성에서 시작해, 한 걸음에 하나씩',
       subSample: '행성이 자라는 방식을 보여주는 견본 기록',
-      steps: '걸음', step: '걸음', draft: '초안', sample: '견본',
-      hint: '끌어서 둘러보세요. 땅을 누르면 그곳으로 가고, 사물을 누르면 그 기록이 열립니다.',
+      steps: '걸음', step: '걸음', draft: '초안', sample: '견본', close: '닫기', open: '이 작품 열기', replay: '자라는 모습 보기', stop: '멈춤',
+      hint: '끌어서 둘러보세요. 땅을 누르면 그곳으로 가고, 사물을 누르면 거기서 만든 것이 열립니다.',
       toSample: '견본 기록으로 보기', toGrown: '백 걸음 뒤의 몸 보기', toReal: '실제 기록으로 돌아가기',
       nothingYet: '아직 아무것도 놓이지 않았습니다.',
       follows: '이어진 곳', read: '읽은 것', outside: '바깥에서 본 것', form: '형태', original: '원문', none: '없음',
@@ -235,11 +256,17 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
       b.textContent = String(s.n);
       b.setAttribute('aria-label', T.step + ' ' + s.n);
       if (s.n === selected) { b.setAttribute('aria-current', 'true'); }
-      b.addEventListener('click', function () { select(s.n, true); });
+      if (s.n > shownK) { b.className = 'later'; }
+      b.addEventListener('click', function () { if (!replay) { select(s.n, true); } });
       box.appendChild(b);
     });
+    var rb = el('replay');
+    rb.hidden = !has3d || data.steps.length < 2;
+    rb.textContent = replay ? T.stop : T.replay;
+    el('w-close').textContent = T.close;
     renderAbout();
     renderRecord();
+    renderWork();
   }
   function renderAbout() {
     var A = UI[lang].about;
@@ -270,6 +297,7 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
     var meta = el('r-meta'), facts = el('r-facts');
     meta.textContent = ''; facts.textContent = '';
     el('r-title').textContent = ''; el('r-text').textContent = ''; el('r-orig').textContent = '';
+    el('r-open').hidden = true;
     if (!s) { return; }
     var bits = [T.step + ' ' + s.n];
     if (s.date) { bits.push(s.date); }
@@ -280,6 +308,9 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
     if (s.status === 'draft') { tag(T.draft); }
     if (isSample && s.n > 0) { tag(T.sample); }
     el('r-title').textContent = pick(s.title);
+    var ob = el('r-open');
+    ob.hidden = !hasWork(s) || workOpen === s.n || !!replay;
+    ob.textContent = T.open;
     if (s.text) {
       el('r-text').textContent = s.text[lang] || s.text.original || '';
       if (s.text.lang && s.text.lang !== lang) {
@@ -308,6 +339,64 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
     try { localStorage.setItem('planet-lang', lang); } catch (e) {}
     renderFrame();
   });
+
+  /* ---------- the work view ---------- */
+  var workOpen = -1, pieceFor = -1, closeUp = false, replay = null, shownK = Infinity;
+  var CSP = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'unsafe-inline\'; style-src \'unsafe-inline\'; img-src data: blob:; media-src data: blob:; font-src data:">';
+  function hasWork(s) { return !!(s && (s.text || s.piece)); }
+  function mountPiece(s) {
+    var holder = el('w-piece');
+    holder.textContent = '';
+    pieceFor = s.n;
+    if (!s.piece) { return; }
+    function put(html) {
+      if (typeof html !== 'string' || !html || html.length > 300000 || pieceFor !== s.n) { return; }
+      var f = document.createElement('iframe');
+      f.setAttribute('sandbox', 'allow-scripts');
+      f.setAttribute('title', pick(s.title));
+      var h = typeof s.piece.height === 'number' ? s.piece.height : 360;
+      f.style.height = Math.min(900, Math.max(120, h)) + 'px';
+      f.srcdoc = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, function (m) { return m + CSP; }) : CSP + html;
+      holder.appendChild(f);
+    }
+    if (typeof s.piece.html === 'string') { put(s.piece.html); }
+    else if (typeof s.piece.src === 'string' && /^pieces\/[A-Za-z0-9._-]+\.html$/.test(s.piece.src)) {
+      fetch(s.piece.src, { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(put).catch(function () {});
+    }
+  }
+  function renderWork() {
+    var s = stepByN(workOpen), T = UI[lang];
+    if (!s) { return; }
+    var bits = [T.step + ' ' + s.n];
+    if (s.date) { bits.push(s.date); }
+    if (s.form) { bits.push(s.form); } else if (T.kinds[s.kind]) { bits.push(T.kinds[s.kind]); }
+    el('w-meta').textContent = bits.join(' · ');
+    el('w-title').textContent = pick(s.title);
+    var wt = el('w-text'), wo = el('w-orig');
+    wt.textContent = ''; wo.textContent = '';
+    if (s.text) {
+      wt.textContent = s.text[lang] || s.text.original || '';
+      if (s.text.lang && s.text.lang !== lang) { wo.textContent = s.text.original || ''; wo.lang = s.text.lang; }
+    }
+    if (pieceFor !== s.n) { mountPiece(s); }
+  }
+  function openWork(s) {
+    closeUp = !!(s && s.group);
+    if (!hasWork(s)) { hideWork(); return; }
+    workOpen = s.n;
+    el('work').hidden = false;
+    renderWork();
+    renderRecord();
+  }
+  function hideWork() {
+    workOpen = -1; pieceFor = -1;
+    el('work').hidden = true;
+    el('w-piece').textContent = '';
+  }
+  function closeWork() { hideWork(); closeUp = false; renderRecord(); }
+  el('w-close').addEventListener('click', closeWork);
+  el('r-open').addEventListener('click', function () { var s = stepByN(selected); if (s) { select(s.n, true); } });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && workOpen >= 0) { closeWork(); } });
 
   /* ---------- the planet ---------- */
   var renderer = null;
@@ -462,58 +551,133 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
     }
     arcs.instanceMatrix.needsUpdate = true;
   }
+  var worldAfter = {}, arcEnd = {}, worldGoal = null;
+  function neutralMarker(s) {
+    if (s.kind === 'founding') { return [{ shape: 'cylinder', size: [0.5, 0.5, 0.04], pos: [0, 0.02, 0], color: '#e2dfd7', sides: 28 }]; }
+    if (s.kind === 'empty') { return [{ shape: 'cylinder', size: [0.16, 0.16, 0.02], pos: [0, 0.01, 0], color: '#d6d3cb', sides: 20 }]; }
+    if (s.kind === 'door') { return [{ shape: 'torus', size: [0.42, 0.05, 180], pos: [0, 0, 0], color: '#bdb9b0' }]; }
+    if (s.piece) { return [{ shape: 'box', size: [0.62, 0.46, 0.05], pos: [0, 0.53, 0], color: '#f4f1ea' }, { shape: 'box', size: [0.05, 0.3, 0.05], pos: [0, 0.15, 0], color: '#bdb9b0' }]; }
+    return [{ shape: 'box', size: [0.4, 0.56, 0.06], pos: [0, 0.3, 0], rot: [-10, 0, 0], color: '#eeebe4' }];
+  }
+  function autoPlace() {
+    var c = dirOf(data.start || { lat: 62, lon: 60 }, new V()), e = new V(0, 1, 0);
+    if (Math.abs(c.y) > 0.95) { e.set(1, 0, 0); }
+    var u = new V().crossVectors(e, c).normalize(), v = new V().crossVectors(c, u).normalize();
+    data.steps.forEach(function (s) {
+      s.autoAt = null;
+      if ((s.thing && s.thing.at) || s.at) { return; }
+      var a = s.n * 2.39996, d = (1.5 + 0.6 * Math.sqrt(s.n)) / R;
+      var t = u.clone().multiplyScalar(Math.cos(a)).addScaledVector(v, Math.sin(a));
+      var q = c.clone().multiplyScalar(Math.cos(d)).addScaledVector(t, Math.sin(d)).normalize();
+      s.autoAt = { lat: Math.asin(q.y) * 180 / Math.PI, lon: Math.atan2(q.z, q.x) * 180 / Math.PI };
+    });
+  }
   function buildWorld() {
     clearWorld();
+    autoPlace();
     var w = JSON.parse(JSON.stringify(DEFAULT_WORLD));
+    worldAfter = {}; arcEnd = {};
     data.steps.forEach(function (s) {
-      s.dir = null;
-      var at = (s.thing && s.thing.at) || s.at;
-      if (at) { s.dir = dirOf(at, new V()); }
+      var at = (s.thing && s.thing.at) || s.at || s.autoAt;
+      s.dir = at ? dirOf(at, new V()) : null;
+      s.group = null;
       if (s.world) {
         if (s.world.sky) { w.sky = s.world.sky; }
         if (s.world.planet) { w.planet = s.world.planet; }
         if (s.world.sun) { w.sun.color = s.world.sun.color || w.sun.color; w.sun.intensity = num(s.world.sun.intensity, w.sun.intensity); }
         w.ambient = num(s.world.ambient, w.ambient);
       }
-      if (s.thing && s.dir && Array.isArray(s.thing.parts)) {
-        var g = new THREE.Group();
-        s.thing.parts.slice(0, 60).forEach(function (pt) {
-          var o = buildPart(pt);
-          if (!o) { return; }
-          o.userData.step = s.n;
-          g.add(o);
-          pickable.push(o);
-          if (pt.light && lightCount < 4) {
-            var pl = new THREE.PointLight(color(pt.color, '#f2c078'), Math.min(1.2, num(pt.light, 0.5)), 5, 2);
-            pl.position.copy(o.position);
-            g.add(pl);
-            lightCount++;
-          }
-        });
-        g.position.copy(s.dir).multiplyScalar(R - 0.01);
-        tmpQ.setFromUnitVectors(UP, s.dir);
-        tmpQ2.setFromAxisAngle(UP, num(s.thing.yaw, 0) * Math.PI / 180);
-        g.quaternion.copy(tmpQ).multiply(tmpQ2);
-        g.scale.setScalar(Math.min(3, Math.max(0.2, num(s.thing.scale, 1))));
-        scene.add(g);
-        things.push(g);
-      }
+      worldAfter[s.n] = JSON.parse(JSON.stringify(w));
+      if (!s.dir) { return; }
+      var own = s.thing && Array.isArray(s.thing.parts) && s.thing.parts.length;
+      var list = own ? s.thing.parts : neutralMarker(s);
+      var g = new THREE.Group();
+      list.slice(0, 60).forEach(function (pt) {
+        var o = buildPart(pt);
+        if (!o) { return; }
+        o.userData.step = s.n;
+        g.add(o);
+        pickable.push(o);
+        if (pt.light && lightCount < 4) {
+          var pl = new THREE.PointLight(color(pt.color, '#f2c078'), Math.min(1.2, num(pt.light, 0.5)), 5, 2);
+          pl.position.copy(o.position);
+          g.add(pl);
+          lightCount++;
+        }
+      });
+      g.position.copy(s.dir).multiplyScalar(R - 0.01);
+      tmpQ.setFromUnitVectors(UP, s.dir);
+      tmpQ2.setFromAxisAngle(UP, num(own ? s.thing.yaw : s.n * 47, 0) * Math.PI / 180);
+      g.quaternion.copy(tmpQ).multiply(tmpQ2);
+      g.userData.scale = Math.min(3, Math.max(0.2, num(own ? s.thing.scale : 1, 1)));
+      g.userData.age = 1;
+      g.scale.setScalar(g.userData.scale);
+      scene.add(g);
+      things.push(g);
+      s.group = g;
     });
     data.steps.forEach(function (s) {
-      if (!s.dir || !s.follows) { return; }
-      s.follows.forEach(function (n) {
-        var o = stepByN(n);
-        if (o && o.dir) { addArc(o.dir, s.dir); }
-      });
+      if (s.dir && s.follows) {
+        s.follows.forEach(function (n) {
+          var o = stepByN(n);
+          if (o && o.dir && o.n < s.n) { addArc(o.dir, s.dir); }
+        });
+      }
+      arcEnd[s.n] = arcs.count;
     });
-    scene.background = color(w.sky, DEFAULT_WORLD.sky);
-    canvas.style.background = '#' + scene.background.getHexString();
-    planet.material.color.copy(color(w.planet, DEFAULT_WORLD.planet));
-    sun.color.copy(color(w.sun.color, DEFAULT_WORLD.sun.color));
-    sun.intensity = Math.min(1.2, Math.max(0, w.sun.intensity));
-    ambient.intensity = Math.min(1.2, Math.max(0.2, w.ambient));
+    showUpTo(Infinity, false);
+  }
+  function applyWorld(w, f) {
+    scene.background.lerp(color(w.sky, DEFAULT_WORLD.sky), f);
+    planet.material.color.lerp(color(w.planet, DEFAULT_WORLD.planet), f);
+    sun.color.lerp(color(w.sun.color, DEFAULT_WORLD.sun.color), f);
+    sun.intensity += (Math.min(1.2, Math.max(0, w.sun.intensity)) - sun.intensity) * f;
+    ambient.intensity += (Math.min(1.2, Math.max(0.2, w.ambient)) - ambient.intensity) * f;
+    if (f === 1) { canvas.style.background = '#' + scene.background.getHexString(); }
+  }
+  function showUpTo(k, animate) {
+    shownK = k;
+    var last = null;
+    data.steps.forEach(function (s) {
+      var vis = s.n <= k;
+      if (s.group) {
+        if (vis && !s.group.visible && animate) { s.group.userData.age = 0; s.group.scale.setScalar(0.001); }
+        s.group.visible = vis;
+      }
+      if (vis) { last = s; }
+    });
+    arcs.count = last ? arcEnd[last.n] : 0;
+    worldGoal = last ? worldAfter[last.n] : DEFAULT_WORLD;
+    if (!animate) { applyWorld(worldGoal, 1); }
     growBody();
   }
+  function startReplay() {
+    if (!has3d || data.steps.length < 2) { return; }
+    closeWork();
+    var order = data.steps.map(function (s) { return s.n; });
+    replay = { order: order, i: 0, wait: 1.2, gap: Math.min(2.6, Math.max(0.8, 30 / order.length)) };
+    showUpTo(order[0], false);
+    select(order[0], false);
+  }
+  function stopReplay() {
+    replay = null;
+    showUpTo(Infinity, false);
+    renderFrame();
+  }
+  function tickReplay(dt) {
+    if (!replay) { return; }
+    replay.wait -= dt;
+    if (replay.wait > 0) { return; }
+    replay.i++;
+    if (replay.i >= replay.order.length) { replay = null; showUpTo(Infinity, true); renderFrame(); return; }
+    var n = replay.order[replay.i], st = stepByN(n);
+    showUpTo(n, true);
+    selected = n;
+    if (st && st.dir) { target = st.group ? standBeside(st.dir, new V()) : st.dir.clone(); }
+    renderFrame();
+    replay.wait = replay.gap;
+  }
+  el('replay').addEventListener('click', function () { if (replay) { stopReplay(); } else { startReplay(); } });
   function markColor(s) {
     if (typeof s.mark === 'string' && /^#[0-9a-fA-F]{6}$/.test(s.mark)) { return s.mark; }
     if (s.thing && Array.isArray(s.thing.parts)) {
@@ -526,12 +690,12 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
   }
   function growBody() {
     var own = [];
-    data.steps.forEach(function (s) { if (s.n >= 1) { own.push(markColor(s)); } });
-    (data.previewMarks || []).forEach(function (c) { own.push(c); });
+    data.steps.forEach(function (s) { if (s.n >= 1 && s.n <= shownK) { own.push(markColor(s)); } });
+    if (shownK === Infinity) { (data.previewMarks || []).forEach(function (c) { own.push(c); }); }
     own = own.slice(0, MAX_OWN);
     for (var i = 0; i < own.length; i++) {
       flock.setColorAt(BASE + i, color(own[i], '#7d7a86'));
-      parts[BASE + i].init = false;
+      if (BASE + i >= flock.count) { parts[BASE + i].init = false; }
     }
     flock.instanceColor.needsUpdate = true;
     flock.count = BASE + own.length;
@@ -545,15 +709,16 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
   }
   function select(n, fly) {
     selected = n;
-    renderFrame();
     var s = stepByN(n);
+    if (fly) { openWork(s); } else { hideWork(); closeUp = false; }
+    renderFrame();
     if (!has3d || !s || !s.dir) { return; }
-    var dest = s.thing ? standBeside(s.dir, new V()) : s.dir.clone();
+    var dest = s.group ? standBeside(s.dir, new V()) : s.dir.clone();
     if (fly) { target = dest; }
     else {
       p.copy(dest);
       fwd.set(1, 0, 0).sub(tmpP.copy(p).multiplyScalar(p.x)).normalize();
-      if (s.thing) { fwd.copy(s.dir).multiplyScalar(R).sub(tmpP.copy(p).multiplyScalar(R)).normalize(); }
+      if (s.group) { fwd.copy(s.dir).multiplyScalar(R).sub(tmpP.copy(p).multiplyScalar(R)).normalize(); }
       pc.copy(p);
       target = null;
       parts.forEach(function (q) { q.init = false; });
@@ -633,7 +798,7 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
     blob.material.opacity = 0.07 * (1 - 0.5 * moveMix);
   }
 
-  var pc, south, tilt = 0.62, camDir, look, side;
+  var pc, south, tilt = 0.62, camDir, look, side, camDist = 15, lookUp = 1.5, viewShift = 0;
   function initCamera() {
     pc = new V(0, 1, 0); south = new V(0, -1, 0.3); camDir = new V(); look = new V(); side = new V();
   }
@@ -643,9 +808,15 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
     if (south.lengthSq() < 1e-6) { south.set(1, 0, 0).sub(tmpP.copy(pc).multiplyScalar(pc.x)); }
     south.normalize();
     camDir.copy(pc).multiplyScalar(Math.cos(tilt)).addScaledVector(south, Math.sin(tilt)).normalize();
-    camera.position.copy(camDir).multiplyScalar(15);
+    camDist += ((closeUp ? 11 : 15) - camDist) * (1 - Math.exp(-dt * 2.5));
+    lookUp += ((closeUp ? 1.0 : 1.5) - lookUp) * (1 - Math.exp(-dt * 2.5));
+    camera.position.copy(camDir).multiplyScalar(camDist);
     camera.up.copy(pc);
-    camera.lookAt(look.copy(pc).multiplyScalar(R + 1.5));
+    camera.lookAt(look.copy(pc).multiplyScalar(R + lookUp));
+    var wantShift = (workOpen >= 0 && window.innerWidth > 700) ? 0.2 : 0;
+    viewShift += (wantShift - viewShift) * (1 - Math.exp(-dt * 3));
+    if (viewShift > 0.002) { camera.setViewOffset(canvas.width, canvas.height, canvas.width * viewShift, 0, canvas.width, canvas.height); }
+    else if (camera.view) { camera.clearViewOffset(); }
     side.crossVectors(pc, south);
     sun.position.copy(pc).multiplyScalar(22).addScaledVector(south, 7).addScaledVector(side, 11);
     sun.target.position.copy(pc).multiplyScalar(R);
@@ -668,15 +839,15 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
     canvas.addEventListener('pointerup', function (e) {
       if (!down) { return; }
       canvas.classList.remove('dragging');
-      if (down.moved < 6) {
+      if (down.moved < 6 && !replay) {
         var r = canvas.getBoundingClientRect();
         ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
         ray.setFromCamera(ndc, camera);
-        var hitThing = ray.intersectObjects(pickable, false);
+        var hitThing = ray.intersectObjects(pickable, false).filter(function (h) { return h.object.parent && h.object.parent.visible; });
         if (hitThing.length) { select(hitThing[0].object.userData.step, true); }
         else {
           var hit = ray.intersectObject(planet);
-          if (hit.length) { target = hit[0].point.clone().normalize(); }
+          if (hit.length) { target = hit[0].point.clone().normalize(); closeWork(); }
         }
       }
       down = null;
@@ -689,6 +860,16 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
     var dt = last === null ? 0.016 : Math.min((now - last) / 1000, 0.05);
     last = now;
     clock += dt;
+    tickReplay(dt);
+    if (worldGoal) { applyWorld(worldGoal, 1 - Math.exp(-dt * 3)); }
+    for (var gi = 0; gi < things.length; gi++) {
+      var g = things[gi];
+      if (g.userData.age < 1) {
+        g.userData.age = Math.min(1, g.userData.age + dt * 2.2);
+        var t = g.userData.age, c1 = 1.70158, c3 = c1 + 1;
+        g.scale.setScalar(g.userData.scale * Math.max(0.001, 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2)));
+      }
+    }
     stepSelf(dt);
     drawSelf(dt);
     stepCamera(dt);
@@ -709,10 +890,11 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
           data.previewMarks = [];
           for (var k = data.steps.length; k <= 100; k++) { data.previewMarks.push(PAL[(k * 7) % PAL.length]); }
         }
+        replay = null; hideWork(); closeUp = false;
         if (has3d) { buildWorld(); }
         var latest = data.steps.length ? data.steps[data.steps.length - 1].n : -1;
         var withPlace = latest;
-        for (var i = data.steps.length - 1; i >= 0; i--) { if (data.steps[i].thing || data.steps[i].at) { withPlace = data.steps[i].n; break; } }
+        for (var i = data.steps.length - 1; i >= 0; i--) { if (data.steps[i].dir) { withPlace = data.steps[i].n; break; } }
         if (has3d) { select(withPlace, false); }
         selected = latest;
         renderFrame();

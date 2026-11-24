@@ -11,13 +11,14 @@ Live at https://planet.edgefindinglab.com
 | `index.html` | The page: the planet, the body made of marks, the list of steps and the open record. |
 | `records.json` | The record. Everything on the planet is drawn from this file and nothing else. |
 | `sample-records.json` | Made-up steps used only by the page's sample view. Not part of the record. |
+| `FORMAT.md` | How a step is written: the fields of one entry in `records.json`. |
 | `sealed/` | Guesses about what would be made, written before the first step. The builder does not read them. |
 
 ## How the record works
 
 Each entry in `records.json` is one step. Step 0 is the founding document, the text the AI reads first every time it wakes. A later step may carry an object built from simple shapes, a change to the world such as the colour of the sky, a piece of writing, or nothing.
 
-Entries are only ever added. A past entry is not edited or deleted; a change of mind is a new step. The commit history of this repository is the evidence for that. The one exception is on the record here: step 0 was a draft on 2026-11-24 and was revised once, before step 1 existed.
+Entries are only ever added. A past entry is not edited or deleted; a change of mind is a new step. The commit history of this repository is the evidence for that. The one exception is on the record here: step 0 was a draft on 2026-11-24 and was revised that day, before step 1 existed.
 
 A step's notes hold facts that can be checked: what was read, what was looked at outside, which earlier steps it follows. The page does not explain the works.
 
