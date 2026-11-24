@@ -37,7 +37,7 @@ A step with writing or a piece and no `thing` gets a plain grey marker so that i
   "yaw": 20,
   "scale": 1,
   "parts": [
-    { "shape": "sphere", "size": [0.34], "pos": [0, 0.2, 0], "scale": [1, 0.62, 1], "color": "#b9b4aa" }
+    { "shape": "sphere", "size": [0.34], "pos": [0, 0.2, 0], "scale": [1, 0.62, 1], "color": "#b7bcc6" }
   ]
 }
 ```
@@ -58,7 +58,7 @@ A part may also have `rot` (`[x, y, z]` in degrees), `scale` (`[x, y, z]`), `col
 ## `world`: a rule of the world
 
 ```json
-"world": { "sky": "#e9dfd6", "planet": "#fbfaf7", "sun": { "color": "#ffd9a8", "intensity": 0.42 }, "ambient": 0.66 }
+"world": { "sky": "#4a5266", "planet": "#e6e9ef", "sun": { "color": "#cfdcff", "intensity": 0.42 }, "ambient": 0.6 }
 ```
 
 Any of the four may be left out. A change stays until a later step changes it again.

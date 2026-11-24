@@ -66,7 +66,7 @@
        0.62,
        1
       ],
-      "color": "#b9b4aa"
+      "color": "#b7bcc6"
      },
      {
       "shape": "sphere",
@@ -83,7 +83,7 @@
        0.66,
        1
       ],
-      "color": "#a9a49a"
+      "color": "#a3a9b4"
      },
      {
       "shape": "sphere",
@@ -100,11 +100,11 @@
        0.7,
        1
       ],
-      "color": "#c6c1b6"
+      "color": "#c9cdd6"
      }
     ]
    },
-   "mark": "#9a958b"
+   "mark": "#8e949f"
   },
   {
    "n": 2,
@@ -125,9 +125,9 @@
    ],
    "outside": "Sample entry. A real record names what was looked at here.",
    "world": {
-    "sky": "#e9dfd6",
+    "sky": "#4a5266",
     "sun": {
-     "color": "#ffd9a8",
+     "color": "#cfdcff",
      "intensity": 0.42
     },
     "ambient": 0.66
@@ -177,13 +177,13 @@
        1.6,
        0
       ],
-      "color": "#f6cf8e",
+      "color": "#eef4ff",
       "glow": true,
       "light": 0.6
      }
     ]
    },
-   "mark": "#f2b45c"
+   "mark": "#dce8ff"
   },
   {
    "n": 3,
@@ -234,7 +234,7 @@
        0,
        0
       ],
-      "color": "#f4f1ea"
+      "color": "#eceff4"
      },
      {
       "shape": "box",
@@ -248,11 +248,11 @@
        0.15,
        -0.12
       ],
-      "color": "#8a6a52"
+      "color": "#6b5b73"
      }
     ]
    },
-   "mark": "#8a6a52"
+   "mark": "#6b5b73"
   },
   {
    "n": 4,
@@ -293,7 +293,7 @@
    "mark": "#5d7f8c",
    "piece": {
     "height": 300,
-    "html": "<!DOCTYPE html>\n<html><head><meta charset=\"utf-8\"><style>html,body{margin:0;height:100%;background:#f7f5f0}canvas{display:block;width:100%;height:100%}</style></head>\n<body><canvas id=\"c\"></canvas><script>\nvar c=document.getElementById('c'),x=c.getContext('2d');\nfunction draw(t){if(c.width!==c.clientWidth*2||c.height!==c.clientHeight*2){c.width=c.clientWidth*2;c.height=c.clientHeight*2}var w=c.width,h=c.height;x.clearRect(0,0,w,h);x.lineWidth=3;\nfor(var i=0;i<9;i++){var r=20+i*26+Math.sin(t/900+i*0.7)*10;x.strokeStyle='rgba(43,42,51,'+(0.85-i*0.08)+')';x.setLineDash([14+i*3,10]);x.lineDashOffset=(i%2?1:-1)*t/40;x.beginPath();x.arc(w/2,h/2,r,0,6.2832);x.stroke()}\nif(t>0||!draw.started){draw.started=true;requestAnimationFrame(draw)}}\ndraw(0);\n</script></body></html>"
+    "html": "<!DOCTYPE html>\n<html><head><meta charset=\"utf-8\"><style>html,body{margin:0;height:100%;background:#f2f4f8}canvas{display:block;width:100%;height:100%}</style></head>\n<body><canvas id=\"c\"></canvas><script>\nvar c=document.getElementById('c'),x=c.getContext('2d');\nfunction draw(t){if(c.width!==c.clientWidth*2||c.height!==c.clientHeight*2){c.width=c.clientWidth*2;c.height=c.clientHeight*2}var w=c.width,h=c.height;x.clearRect(0,0,w,h);x.lineWidth=3;\nfor(var i=0;i<9;i++){var r=20+i*26+Math.sin(t/900+i*0.7)*10;x.strokeStyle='rgba(43,42,51,'+(0.85-i*0.08)+')';x.setLineDash([14+i*3,10]);x.lineDashOffset=(i%2?1:-1)*t/40;x.beginPath();x.arc(w/2,h/2,r,0,6.2832);x.stroke()}\nif(t>0||!draw.started){draw.started=true;requestAnimationFrame(draw)}}\ndraw(0);\n</script></body></html>"
    }
   },
   {
@@ -366,7 +366,7 @@
        0,
        -24
       ],
-      "color": "#7a8f6a"
+      "color": "#5f8a84"
      },
      {
       "shape": "box",
@@ -385,11 +385,11 @@
        0,
        24
       ],
-      "color": "#a9b59c"
+      "color": "#9dbdb6"
      }
     ]
    },
-   "mark": "#7a8f6a"
+   "mark": "#5f8a84"
   }
  ]
 }
