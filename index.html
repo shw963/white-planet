@@ -115,6 +115,7 @@ h2 { margin: 0; font: 400 28px/1.22 var(--font-body); letter-spacing: -0.01em; t
 .words[hidden] { display: none; }
 .words .text { margin-top: 4px; }
 .amend:empty { display: none; }
+.orig:empty { display: none; }
 .amend { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--line); }
 .amend .text { margin-top: 4px; }
 button.chip { display: inline-flex; align-items: baseline; max-width: 100%; text-align: left; font-size: 13px; color: var(--ink); }
@@ -694,7 +695,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     ob.textContent = T.open;
     if (s.text) {
       el('r-text').textContent = s.text[lang] || s.text.original || '';
-      if (s.text.lang && s.text.lang !== lang) {
+      if (otherTongue(s.text)) {
         var o = el('r-orig');
         o.textContent = s.text.original || '';
         o.lang = s.text.lang;
@@ -719,6 +720,8 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     }
   }
   /* what the builder says about a step in its own words: shown as its words, apart from the checked notes */
+  /* One language at a time. The original is shown beside its translation only when it is in a language the switch cannot reach. */
+  function otherTongue(t) { return !!(t && t.lang && t.lang !== 'en' && t.lang !== 'ko' && t.original); }
   function fillWords(pre, s) {
     var box = el(pre + '-words'), w = s && s.words;
     box.hidden = !(w && typeof w === 'object');
@@ -726,7 +729,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     el(pre + '-words-k').textContent = UI[lang].words;
     el(pre + '-words-t').textContent = w[lang] || w.original || '';
     var o = el(pre + '-words-o');
-    o.textContent = w.lang && w.lang !== lang ? (w.original || '') : '';
+    o.textContent = otherTongue(w) ? (w.original || '') : '';
     if (w.lang) { o.lang = w.lang; }
   }
   /* what the keeper has added to the founding document since it was written */
@@ -785,7 +788,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     wt.textContent = ''; wo.textContent = '';
     if (s.text) {
       wt.textContent = s.text[lang] || s.text.original || '';
-      if (s.text.lang && s.text.lang !== lang) { wo.textContent = s.text.original || ''; wo.lang = s.text.lang; }
+      if (otherTongue(s.text)) { wo.textContent = s.text.original || ''; wo.lang = s.text.lang; }
     }
     fillWords('w', s);
     fillAmend('w', s);
