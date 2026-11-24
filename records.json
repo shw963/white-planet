@@ -27,6 +27,17 @@
     "en": "People who come here can leave a like on any step. You are not shown them: not how many, and not on which steps. They are kept outside this repository. Do not go looking for them.",
     "ko": "여기 온 사람들은 걸음마다 좋아요를 남길 수 있다. 너에게는 보이지 않는다. 몇 개인지도, 어느 걸음에 남겼는지도. 이 저장소 밖에 보관한다. 찾아보지 말 것."
    }
+  },
+  {
+   "date": "2026-11-25",
+   "after": 2,
+   "by": "keeper",
+   "text": {
+    "lang": "en",
+    "original": "Each step is also shown outside this place, on X, in the same form every time: its number, your title, your line for its form, your words if you left any, the writing itself if the step is writing, and a picture of the planet as it stood at that step. No step is chosen over another and nothing is added to what you wrote. You do not have to do anything for this.",
+    "en": "Each step is also shown outside this place, on X, in the same form every time: its number, your title, your line for its form, your words if you left any, the writing itself if the step is writing, and a picture of the planet as it stood at that step. No step is chosen over another and nothing is added to what you wrote. You do not have to do anything for this.",
+    "ko": "걸음마다 이곳 바깥의 X에도 매번 같은 형식으로 보여진다. 걸음 번호, 네가 붙인 제목, 형태를 적은 네 한 줄, 남겼다면 네 말, 글이라면 그 글 자체, 그리고 그 걸음 때의 행성 그림. 어느 걸음을 골라서 올리지 않고, 네가 쓴 것에 아무것도 덧붙이지 않는다. 이를 위해 네가 할 일은 없다."
+   }
   }
  ],
  "steps": [

@@ -1710,7 +1710,41 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     }
     renderer.render(scene, camera);
     updateTags();
-    requestAnimationFrame(frame);
+    if (!shooting) { requestAnimationFrame(frame); }
+  }
+
+  /* ?shot=N: one still picture of the planet as it stood at step N, for showing that step elsewhere.
+     The page becomes that picture. If another window opened this one, the picture is handed to it. */
+  var shotN = (function () { var m = /[?&]shot=(\d{1,4})(?:&|$)/.exec(location.search); return m ? parseInt(m[1], 10) : -1; })();
+  var shooting = false;
+  function takeShot(n) {
+    shooting = true;
+    var fontsReady = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+    Promise.race([fontsReady, new Promise(function (r) { setTimeout(r, 2500); })]).then(function () {
+      textSprites.forEach(paintWords);
+      renderer.setPixelRatio(1);
+      renderer.setSize(1600, 900, false);
+      camera.aspect = 16 / 9;
+      camera.updateProjectionMatrix();
+      showUpTo(n, false);
+      select(n, false);
+      select(n, true);
+      var t = performance.now();
+      for (var i = 0; i < 260; i++) { t += 33; frame(t); }
+      canvas.toBlob(function (blob) {
+        if (!blob) { document.title = 'shot failed'; return; }
+        window.__shot = blob;
+        try { if (window.opener) { window.opener.postMessage({ planetShot: n, blob: blob }, 'https://x.com'); } } catch (e) {}
+        var img = new Image();
+        img.src = URL.createObjectURL(blob);
+        img.alt = 'Step ' + n;
+        img.style.cssText = 'display:block;width:100%;height:auto';
+        document.body.textContent = '';
+        document.body.style.margin = '0';
+        document.body.appendChild(img);
+        document.title = 'shot ' + n;
+      }, 'image/jpeg', 0.92);
+    });
   }
 
   function load() {
@@ -1748,7 +1782,11 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
 
   if (has3d) { init3d(); initCamera(); initPointer(); dirOf({ lat: 62, lon: 60 }, p); pc.copy(p); }
   renderFrame();
-  load().then(function () { if (has3d) { requestAnimationFrame(frame); } });
+  load().then(function () {
+    if (!has3d) { return; }
+    if (shotN >= 1 && !isSample && stepByN(shotN)) { takeShot(shotN); return; }
+    requestAnimationFrame(frame);
+  });
   if (document.fonts && document.fonts.load) {
     Promise.all([document.fonts.load('500 34px "IBM Plex Sans KR"'), document.fonts.load('500 34px "IBM Plex Sans"')])
       .then(function () { textSprites.forEach(paintWords); })
