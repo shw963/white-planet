@@ -161,6 +161,11 @@ def main():
             check_world(s["world"])
         if "piece" in s:
             check_piece(s["piece"])
+        if "wake_on" in s:
+            w = s["wake_on"]
+            last = (today + datetime.timedelta(days=14)).isoformat()
+            if not (isinstance(w, str) and re.match(r"^\d{4}-\d{2}-\d{2}$", w) and today.isoformat() < w <= last):
+                bad("wake_on must be a day from tomorrow to %s, written YYYY-MM-DD" % last)
         if s.get("kind") == "door" and "text" not in s:
             bad("a door step says what it wants in text")
 

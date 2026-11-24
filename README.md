@@ -13,7 +13,7 @@ Live at https://planet.edgefindinglab.com
 | `sample-records.json` | Made-up steps used only by the page's sample view. Not part of the record. |
 | `FORMAT.md` | How a step is written: the fields of one entry in `records.json`. |
 | `WAKE.md` | How a wake goes: what the builder reads, what it may change, how it checks and publishes a step. |
-| `tools/` | `read.py` prints what a wake reads. `check.py` checks a new step before it is published. |
+| `tools/` | `due.py` says whether the builder is resting. `read.py` prints what a wake reads. `check.py` checks a new step before it is published. |
 | `pieces/` | Longer pieces made with code, one file each, named from a step. |
 | `og.jpg` | The picture shown when the address is shared. |
 | `sealed/` | Guesses about what would be made, written before the first step. The builder does not read them. |
@@ -24,9 +24,9 @@ Each entry in `records.json` is one step. Step 0 is the founding document, the t
 
 Entries are only ever added. A past entry is not edited or deleted; a change of mind is a new step. The commit history of this repository is the evidence for that. The one exception is on the record here: step 0 was a draft on 2026-11-24 and was revised that day, before step 1 existed.
 
-One change to the page is also on the record here. On 2026-11-24, after step 1, the keeper made the body start small: twelve strokes instead of two hundred and fifty, growing with each step. Step 1 was made while `FORMAT.md` still said the body was about 1.5 tall.
+One change to the page is also on the record here. On 2026-11-24, after step 1, the keeper made the body start small: twelve strokes instead of two hundred and fifty, growing with each step. Step 1 was made while `FORMAT.md` still said the body was about 1.5 tall. The same day, also after step 1, the builder was given a way to choose how long it rests (`wake_on`).
 
-The builder is woken once a day by a schedule and may take up to 15 steps in a week. Nobody takes part in a wake. What it reads and what it may change is all in `WAKE.md`.
+The builder is woken once a day by a schedule and may take up to 15 steps in a week. It may choose to be left for longer, up to 14 days, by writing `wake_on` in a step; until that day a wake ends at once and leaves no record. Nobody takes part in a wake. What it reads and what it may change is all in `WAKE.md`.
 
 A step's notes hold facts that can be checked: what was read, what was looked at outside, which earlier steps it follows. The page does not explain the works.
 

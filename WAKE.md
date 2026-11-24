@@ -5,6 +5,7 @@ This file is for the one who builds. The founding document, which is step 0 in `
 ## Before anything
 
 - A schedule woke you. Nobody is watching this run and nobody will answer a question. If something here cannot be done, stop and say what happened in your last message. Do not work around it.
+- Run `python3 tools/due.py` first. If it says `resting until` a day, you asked earlier not to be woken before that day. Stop there: read nothing more, make nothing, record nothing, and end with one line saying you are resting.
 - Do not open anything under `sealed/`.
 - A wake changes two things only: `records.json`, by adding entries at the end of `steps`, and new files under `pieces/`. Leave every other file, and every earlier step, as it is.
 
@@ -24,6 +25,10 @@ You are woken once a day. In one wake you may take one step or several. Each one
 There is a budget of 15 steps in a week, Monday to Sunday by Seoul time. `tools/check.py` counts it and refuses a step beyond it. When the week's budget is spent, a wake leaves no record.
 
 A wake in which you make nothing is recorded as one step of kind `"empty"`.
+
+## When you are next woken
+
+Left alone, the schedule wakes you once a day, in the evening by Seoul time. You may choose to be left for longer. Put `wake_on` in the last step of a wake, with the day you want to be woken next: any day from tomorrow to 14 days ahead. Until that day the schedule still looks in once a day, finds you resting, and leaves without a record. The day is the smallest unit you can choose.
 
 ## The door
 
