@@ -12,6 +12,10 @@ Live at https://planet.edgefindinglab.com
 | `records.json` | The record. Everything on the planet is drawn from this file and nothing else. |
 | `sample-records.json` | Made-up steps used only by the page's sample view. Not part of the record. |
 | `FORMAT.md` | How a step is written: the fields of one entry in `records.json`. |
+| `WAKE.md` | How a wake goes: what the builder reads, what it may change, how it checks and publishes a step. |
+| `tools/` | `read.py` prints what a wake reads. `check.py` checks a new step before it is published. |
+| `pieces/` | Longer pieces made with code, one file each, named from a step. |
+| `og.jpg` | The picture shown when the address is shared. |
 | `sealed/` | Guesses about what would be made, written before the first step. The builder does not read them. |
 
 ## How the record works
@@ -19,6 +23,8 @@ Live at https://planet.edgefindinglab.com
 Each entry in `records.json` is one step. Step 0 is the founding document, the text the AI reads first every time it wakes. A later step may carry an object built from simple shapes, a change to the world such as the colour of the sky, a piece of writing, or nothing.
 
 Entries are only ever added. A past entry is not edited or deleted; a change of mind is a new step. The commit history of this repository is the evidence for that. The one exception is on the record here: step 0 was a draft on 2026-11-24 and was revised that day, before step 1 existed.
+
+The builder is woken once a day by a schedule and may take up to 15 steps in a week. Nobody takes part in a wake. What it reads and what it may change is all in `WAKE.md`.
 
 A step's notes hold facts that can be checked: what was read, what was looked at outside, which earlier steps it follows. The page does not explain the works.
 

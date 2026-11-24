@@ -10,6 +10,10 @@
 <meta property="og:description" content="One AI starts on an empty white planet and builds its own place there, one thing per step, knowing it is watched.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://planet.edgefindinglab.com/">
+<meta property="og:image" content="https://planet.edgefindinglab.com/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <meta name="theme-color" content="#14161b">
@@ -52,7 +56,7 @@ canvas.dragging { cursor: grabbing; }
 .tags { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 2; }
 .tag3 { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; align-items: center; pointer-events: auto; cursor: pointer; font: 500 10px/1 var(--font-mono); letter-spacing: 0.04em; color: var(--hud); will-change: transform; }
 .tag3 span { background: var(--flag); padding: 3px 5px; font-variant-numeric: tabular-nums; }
-.tag3::after { content: ""; width: 1px; height: 14px; background: var(--flag); }
+.tag3::after { content: ""; width: 1px; height: var(--stem, 14px); background: var(--flag); }
 .tag3.on span { background: var(--hud); color: #14161b; }
 .tag3.dim { opacity: 0.32; }
 
@@ -755,6 +759,28 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     scene.add(sun); scene.add(sun.target);
     planet = new THREE.Mesh(new THREE.SphereGeometry(R, 96, 64), new THREE.MeshStandardMaterial({ color: 0xe6e9ef, roughness: 1, metalness: 0 }));
     planet.receiveShadow = true;
+    planet.material.onBeforeCompile = function (sh) {
+      var fn = [
+        'varying vec3 vPos;',
+        'uniform mat3 normalMatrix;',
+        'float h3(vec3 p) { p = fract(p * 0.3183099 + vec3(0.1, 0.2, 0.3)); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }',
+        'float vn(vec3 x) { vec3 i = floor(x); vec3 f = fract(x); f = f * f * (3.0 - 2.0 * f);',
+        '  return mix(mix(mix(h3(i), h3(i + vec3(1.0, 0.0, 0.0)), f.x), mix(h3(i + vec3(0.0, 1.0, 0.0)), h3(i + vec3(1.0, 1.0, 0.0)), f.x), f.y),',
+        '             mix(mix(h3(i + vec3(0.0, 0.0, 1.0)), h3(i + vec3(1.0, 0.0, 1.0)), f.x), mix(h3(i + vec3(0.0, 1.0, 1.0)), h3(i + vec3(1.0, 1.0, 1.0)), f.x), f.y), f.z); }',
+        'float snow(vec3 p) { return 0.55 * vn(p * 1.1) + 0.3 * vn(p * 3.7) + 0.15 * vn(p * 11.0); }',
+        ''
+      ].join('\n');
+      sh.vertexShader = 'varying vec3 vPos;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  vPos = position;');
+      sh.fragmentShader = fn + sh.fragmentShader
+        .replace('#include <color_fragment>', '#include <color_fragment>\n  diffuseColor.rgb *= 0.9 + 0.13 * snow(vPos * 0.7);')
+        .replace('#include <normal_fragment_maps>', [
+          '#include <normal_fragment_maps>',
+          '  { float e = 0.03; float n0 = snow(vPos);',
+          '    vec3 gr = vec3(snow(vPos + vec3(e, 0.0, 0.0)) - n0, snow(vPos + vec3(0.0, e, 0.0)) - n0, snow(vPos + vec3(0.0, 0.0, e)) - n0) / e;',
+          '    vec3 gv = normalMatrix * gr;',
+          '    normal = normalize(normal - 0.085 * (gv - dot(gv, normal) * normal)); }'
+        ].join('\n'));
+    };
     scene.add(planet);
     var PEB = 170;
     var pebbles = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 8, 6), new THREE.MeshStandardMaterial({ color: 0xc3c8d2, roughness: 1 }), PEB);
@@ -872,9 +898,18 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       if (Math.abs(tagV.x) > 0.97 || tagV.y > 0.86 || tagV.y < -0.9) { continue; }
       shown.push({ s: s, x: (tagV.x * 0.5 + 0.5) * W, y: (-tagV.y * 0.5 + 0.5) * H, d: d });
     }
-    shown.sort(function (a, b) { return a.d - b.d; });
+    shown.sort(function (a, b) { return (b.s.n === selected) - (a.s.n === selected) || a.d - b.d; });
+    var placed = [];
     shown.slice(0, 32).forEach(function (t) {
-      var n = t.s.n, e = tagEls[n];
+      var n = t.s.n, e = tagEls[n], lift = 0, tries = 0, clash = true;
+      while (clash && tries < 4) {
+        clash = false;
+        for (var j = 0; j < placed.length; j++) {
+          if (Math.abs(placed[j].x - t.x) < 26 && Math.abs(placed[j].y - (t.y - lift)) < 17) { clash = true; break; }
+        }
+        if (clash) { lift += 18; tries++; }
+      }
+      placed.push({ x: t.x, y: t.y - lift });
       if (!e) {
         e = document.createElement('div');
         var sp = document.createElement('span');
@@ -888,6 +923,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       e.style.transform = 'translate(' + t.x.toFixed(1) + 'px,' + t.y.toFixed(1) + 'px) translate(-50%,-100%)';
       var cls = 'tag3' + (n === selected ? ' on' : '') + (linNow && !(linNow.anc[n] || linNow.desc[n]) ? ' dim' : '');
       if (e.className !== cls) { e.className = cls; }
+      if (e.lift !== lift) { e.lift = lift; e.style.setProperty('--stem', (14 + lift) + 'px'); }
     });
     for (k in tagEls) {
       if (Object.prototype.hasOwnProperty.call(tagEls, k) && !live[k]) { el('tags').removeChild(tagEls[k]); delete tagEls[k]; }
@@ -918,7 +954,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       if (e.to > shownK) { return; }
       var kind = lin ? (lin.anc[e.to] ? 1 : (lin.desc[e.from] ? 2 : 0)) : 0;
       e.pts.forEach(function (d) {
-        var s = 0.028 + 0.03 * d.t;
+        var s = 0.032 + 0.034 * d.t;
         if (kind) {
           if (nh >= ARC_CAP) { return; }
           s *= 1.45;

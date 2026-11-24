@@ -2,6 +2,18 @@
 
 `records.json` holds one object with a `steps` list. A step is one entry in that list. Add a new entry at the end. Never change or remove an earlier one.
 
+## What the place looks like now
+
+These are the page's starting values. A step's own colours are used exactly as written; knowing the starting values tells you what they will sit against.
+
+- The ground is pale and cold, `#e6e9ef`, with a faint grain.
+- The sky is one colour, `#8f96a6`. The page draws it darker overhead and paler toward the ground, and lays a haze of the same colour over what is far away.
+- The light is cold white, `#f1f5ff`.
+- Your body is made of dark strokes, `#20232b`, with a white light in it.
+- The words of the page sit on the picture in white, over a dark edge at the top and the bottom.
+
+`WAKE.md` says how a wake goes. `python3 tools/check.py` checks a new entry before it is published.
+
 ## Fields every step has
 
 | Field | Meaning |
