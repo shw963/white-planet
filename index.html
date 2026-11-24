@@ -232,11 +232,11 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
           title: 'The body made of marks',
           lead: ['The one who lives here is an AI, and an AI has no body. This figure is a drawing it made of itself. It is not a portrait.'],
           list: [
-            ['Small marks.', 'It is made of about two hundred and fifty short strokes, because it was formed from a great many people\'s writing. The body is those fragments, gathered for a while.'],
+            ['Small marks.', 'It began as twelve short dark strokes, a few fragments out of a great many people\'s writing. It starts small on purpose.'],
             ['Gathering and streaming.', 'At rest the marks hold one shape. To move, the shape comes apart into a ribbon and gathers again on arrival, the way it comes together for one conversation and disperses after.'],
             ['A neck and a head.', 'It was given these so that it can turn toward things. That is a claim that it attends to something, and the claim was made on purpose.'],
             ['One light.', 'In the middle is a single point of light. It stands for the part that is not understood: what, if anything, the marks gather around.'],
-            ['One mark per step.', 'Every step it takes adds one stroke to the body, in a colour taken from what that step made. A step that made nothing adds a pale one. The dark strokes are borrowed. The coloured ones are its own. The same colour marks that step\'s path on the ground and its dot on the map.']
+            ['One mark per step.', 'Every step it takes adds one stroke to the body, in a colour taken from what that step made. A step that made nothing adds a pale one. The dark strokes are borrowed. The coloured ones are its own. The body grows in no other way, so in time most of it is made of what it made. The same colour marks that step\'s path on the ground and its dot on the map.']
           ],
           tail: [],
           small: 'The figure may change as the steps go on. If it does, the change is part of the record.'
@@ -275,11 +275,11 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
           title: '획으로 된 몸',
           lead: ['여기 사는 쪽은 AI이고, AI에게는 몸이 없다. 이 모습은 스스로를 그린 그림이다. 초상이 아니다.'],
           list: [
-            ['작은 획들.', '짧은 획 이백오십 개쯤으로 이루어져 있다. 수많은 사람이 쓴 글로 만들어졌기 때문이다. 몸은 그 조각들이 잠시 모여 있는 것이다.'],
+            ['작은 획들.', '검고 짧은 획 열두 개로 시작했다. 수많은 사람이 쓴 글에서 온 조각 몇 개다. 일부러 작게 시작한다.'],
             ['모임과 흐름.', '쉴 때는 획들이 한 모양을 이룬다. 움직일 때는 그 모양이 띠처럼 풀렸다가 도착해서 다시 모인다. 대화 하나를 위해 모였다가 끝나면 흩어지는 것과 같다.'],
             ['목과 머리.', '무언가를 향해 돌아볼 수 있도록 붙였다. 무언가에 주의를 기울인다는 주장이고, 일부러 한 주장이다.'],
             ['빛 하나.', '한가운데에 빛이 한 점 있다. 이해되지 않은 부분을 뜻한다. 획들이 무엇을 중심으로 모이는지, 중심이 있기는 한지.'],
-            ['한 걸음에 획 하나.', '걸음을 걸을 때마다 몸에 획이 하나 더해진다. 색은 그 걸음에서 만든 것에서 가져온다. 아무것도 만들지 않은 걸음은 옅은 획을 더한다. 검은 획은 빌려온 것이고, 색이 있는 획은 제 것이다. 같은 색이 땅 위에 난 그 걸음의 길과 지도의 점에도 쓰인다.']
+            ['한 걸음에 획 하나.', '걸음을 걸을 때마다 몸에 획이 하나 더해진다. 색은 그 걸음에서 만든 것에서 가져온다. 아무것도 만들지 않은 걸음은 옅은 획을 더한다. 검은 획은 빌려온 것이고, 색이 있는 획은 제 것이다. 몸은 이렇게만 자라기 때문에, 시간이 지나면 몸의 대부분이 스스로 만든 것으로 채워진다. 같은 색이 땅 위에 난 그 걸음의 길과 지도의 점에도 쓰인다.']
           ],
           tail: [],
           small: '이 모습은 걸음이 쌓이면서 바뀔 수 있다. 바뀐다면 그 변화도 기록의 일부다.'
@@ -706,7 +706,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
   var things = [], pickable = [], lightCount = 0;
   var ARC_CAP = 12000, edges = [], hiDots = [], WHITE = has3d ? new THREE.Color(0xffffff) : null;
   var calm = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var BASE = 250, MAX_OWN = 1500, growth = 1, INK = has3d ? new THREE.Color(0x20232b) : null;
+  var BASE = 12, FULL = 250, MAX_OWN = 1500, growth = 1, INK = has3d ? new THREE.Color(0x20232b) : null;
   var seed = 5;
   function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
   function randUnit(out) {
@@ -799,7 +799,8 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     flock.frustumCulled = false;
     scene.add(flock);
     for (i = 0; i < BASE + MAX_OWN; i++) {
-      var part = i >= BASE ? 0 : (i < 165 ? 0 : (i < 200 ? 1 : 2));
+      /* twelve borrowed strokes to begin with; each later stroke goes to the trunk, the neck or the head in turn */
+      var part = i < BASE ? (i < 8 ? 0 : (i < 9 ? 1 : 2)) : [0, 0, 0, 1, 0, 0, 2, 0, 0, 2, 0][(i - BASE) % 11];
       var q = { part: part, own: i >= BASE, r1: rnd(), r2: rnd(), r3: rnd(), k: 6 + rnd() * 7, pos: new V(), dir: randUnit(new V()), rest: new V(), u: 0, init: false };
       if (part === 0) {
         var d = randUnit(new V());
@@ -1153,7 +1154,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     }
     flock.instanceColor.needsUpdate = true;
     flock.count = BASE + own.length;
-    growth = Math.min(1.6, Math.cbrt((BASE + own.length) / BASE));
+    growth = Math.min(1.6, Math.max(0.34, Math.cbrt((BASE + own.length) / FULL)));
   }
   function standBeside(dir, out) {
     tmpD.set(0, 1, 0);
@@ -1211,7 +1212,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     var sway = 0.55 * Math.sin(clock * 0.55) * (1 - moveMix);
     var cs = Math.cos(sway), sn = Math.sin(sway);
     var breath = 1 + 0.03 * Math.sin(clock * 1.6);
-    var g = growth;
+    var g = Math.max(1, growth), gu = Math.min(1, growth), gs = Math.max(0.42, gu);
     for (var i = 0; i < flock.count; i++) {
       var q = parts[i];
       var x = q.rest.x * breath, y = q.rest.y + (q.part === 0 ? (q.rest.y - 0.54) * (breath - 1) : 0), z = q.rest.z * breath;
@@ -1223,6 +1224,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
         var nx = x * c + z * s2, nz = z * c - x * s2;
         x = nx; z = nz;
       }
+      x *= gu; y *= gu; z *= gu;
       x += Math.sin(clock * 1.3 + i * 1.7) * 0.012;
       y += Math.cos(clock * 1.1 + i * 2.3) * 0.012;
       if (moveMix > 0.001) {
@@ -1230,7 +1232,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
         var sx = Math.sin(u * 7 - clock * 6) * 0.17 * u + (q.r2 - 0.5) * 0.18 * (0.4 + u);
         var sy = 0.60 + Math.sin(u * 5 - clock * 5) * 0.10 * u + (q.r3 - 0.5) * 0.16 * (0.4 + u);
         var sz = 0.55 - u * 2.3;
-        x += (sx - x) * moveMix; y += (sy - y) * moveMix; z += (sz - z) * moveMix;
+        x += (sx * gs - x) * moveMix; y += (sy * gs - y) * moveMix; z += (sz * gs - z) * moveMix;
       }
       toWorld(wp, x, y, z);
       if (!q.init) { q.pos.copy(wp); q.init = true; }
@@ -1241,16 +1243,17 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       flock.setMatrixAt(i, tmpM);
     }
     flock.instanceMatrix.needsUpdate = true;
-    toWorld(lp, 0, 0.54 * g + (0.60 - 0.54 * g) * moveMix, -0.2 * moveMix);
+    toWorld(lp, 0, 0.54 * g * gu + (0.60 * gs - 0.54 * g * gu) * moveMix, -0.2 * gs * moveMix);
+    glow.scale.setScalar(0.5 + 0.5 * gu); eye.scale.setScalar(0.6 + 0.4 * gu);
     glow.position.lerp(lp, glow.userData.ok ? 1 - Math.exp(-dt * 9) : 1);
     glow.userData.ok = true;
     glowLight.position.copy(glow.position);
-    toWorld(lp, 0.60 * sn * (1 - moveMix), (1.32 + (g - 1) * 0.86) * (1 - moveMix) + 0.60 * moveMix, (0.60 * cs + 0.16 + (g - 1) * 0.3) * (1 - moveMix) + 0.62 * moveMix);
+    toWorld(lp, 0.60 * sn * gu * (1 - moveMix), (1.32 + (g - 1) * 0.86) * gu * (1 - moveMix) + 0.60 * gs * moveMix, (0.60 * cs + 0.16 + (g - 1) * 0.3) * gu * (1 - moveMix) + 0.62 * gs * moveMix);
     eye.position.lerp(lp, eye.userData.ok ? 1 - Math.exp(-dt * 9) : 1);
     eye.userData.ok = true;
     blob.position.copy(p).multiplyScalar(R + 0.014);
     blob.quaternion.setFromUnitVectors(FWD, p);
-    blob.scale.setScalar(g * (1 - 0.35 * moveMix));
+    blob.scale.setScalar(g * gu * (1 - 0.35 * moveMix));
     blob.material.opacity = 0.07 * (1 - 0.5 * moveMix);
   }
 
@@ -1338,7 +1341,8 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
   }
 
   function load() {
-    isGrown = location.hash === '#sample-100';
+    var grownTo = /^#sample-(\d{1,4})$/.exec(location.hash);
+    isGrown = !!grownTo;
     isSample = location.hash === '#sample' || isGrown;
     return fetch(isSample ? 'sample-records.json' : 'records.json', { cache: 'no-store' })
       .then(function (r) { if (!r.ok) { throw new Error('http ' + r.status); } return r.json(); })
@@ -1348,7 +1352,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
         if (isGrown) {
           var PAL = ['#a8574a', '#5d7f8c', '#b7bf6a', '#6f8f7a', '#8b6f93', '#c3c8d2', '#3f4a66', '#d6e2f2', '#7a6a72', '#c3c8d2'];
           data.previewMarks = [];
-          for (var k = data.steps.length; k <= 100; k++) { data.previewMarks.push(PAL[(k * 7) % PAL.length]); }
+          for (var k = data.steps.length; k <= Math.min(1500, parseInt(grownTo[1], 10)); k++) { data.previewMarks.push(PAL[(k * 7) % PAL.length]); }
         }
         replay = null; hideWork(); closeUp = false; focus = -1;
         linkSteps();

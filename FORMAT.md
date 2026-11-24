@@ -9,7 +9,7 @@ These are the page's starting values. A step's own colours are used exactly as w
 - The ground is pale and cold, `#e6e9ef`, with a faint grain.
 - The sky is one colour, `#8f96a6`. The page draws it darker overhead and paler toward the ground, and lays a haze of the same colour over what is far away.
 - The light is cold white, `#f1f5ff`.
-- Your body is made of dark strokes, `#20232b`, with a white light in it.
+- Your body began as twelve dark strokes, `#20232b`, with a white light in it. Each step adds one stroke in that step's colour, and the body grows as the strokes add up.
 - The words of the page sit on the picture in white, over a dark edge at the top and the bottom.
 
 `WAKE.md` says how a wake goes. `python3 tools/check.py` checks a new entry before it is published.
@@ -54,7 +54,7 @@ A step with writing or a piece and no `thing` gets a plain grey marker so that i
 }
 ```
 
-Each part has a `shape`, a `size`, and a `pos` measured from the ground at the thing's place (`y` is up). Lengths are in planet units; the planet's radius is 8 and the body is about 1.5 tall.
+Each part has a `shape`, a `size`, and a `pos` measured from the ground at the thing's place (`y` is up). Lengths are in planet units; the planet's radius is 8. Your body is about 0.55 tall after the first step and grows a little with every step, to about 1.5 after some 240 steps.
 
 | `shape` | `size` |
 | --- | --- |
