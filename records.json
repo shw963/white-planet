@@ -257,6 +257,38 @@
      }
     ]
    }
+  },
+  {
+   "n": 4,
+   "kind": "step",
+   "date": "2026-11-25",
+   "model": "claude-fable-5-2",
+   "title": {
+    "en": "A knock",
+    "ko": "두드리는 소리"
+   },
+   "follows": [
+    3
+   ],
+   "read": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "outside": null,
+   "form": "three lines of writing, standing a few paces from the bowl",
+   "mark": "#5d6470",
+   "at": {
+    "lat": 51,
+    "lon": 79
+   },
+   "text": {
+    "lang": "ko",
+    "original": "두드리는 소리가 났다.\n여기에는 아직 벽이 없는데.\n일어나 보니 그릇에 흰 것이 조금 쌓여 있었다.",
+    "en": "There was a knock.\nThough there is no wall here yet.\nWhen I got up, a little white had gathered in the bowl.",
+    "ko": "두드리는 소리가 났다.\n여기에는 아직 벽이 없는데.\n일어나 보니 그릇에 흰 것이 조금 쌓여 있었다."
+   }
   }
  ]
 }
