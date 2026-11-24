@@ -70,6 +70,11 @@ h1 { white-space: nowrap; margin: 0 0 12px; font: 500 17px/1.25 var(--font-mono)
 .now { margin-top: 2px; font-variant-numeric: tabular-nums; }
 .hud.tr { right: 32px; top: 28px; max-width: 30ch; display: flex; flex-direction: column; align-items: flex-end; gap: 18px; text-align: right; }
 #lang { text-decoration: underline; text-underline-offset: 3px; }
+.toprow { display: flex; align-items: baseline; gap: 18px; }
+#tip-top { color: var(--hud-muted); text-decoration: underline; text-underline-offset: 3px; }
+#tip-top:hover { color: var(--hud); }
+.tipline { grid-column: 2; margin: 0; font-size: 13px; line-height: 1.6; color: var(--ink-muted); max-width: 62ch; }
+.tipline a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 .sel { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
 .sel[hidden] { display: none; }
 .hlike { margin-top: -8px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
@@ -149,7 +154,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
   .work-open .hud.tr, .work-open .hud.bottom { right: calc(min(440px, 92vw) + 28px); }
   .work-open .sel, .work-open .hlike { display: none; }
 }
-@media (max-width: 860px) { .record, .about { grid-template-columns: 1fr; } }
+@media (max-width: 860px) { .record, .about { grid-template-columns: 1fr; } .tipline { grid-column: 1; } }
 @media (max-width: 700px) {
   .stage { height: 72vh; min-height: 420px; }
   .hud.tl { left: 16px; top: 16px; max-width: 26ch; }
@@ -182,7 +187,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
         <p class="now mark" id="visits" hidden></p>
       </header>
       <div class="hud tr">
-        <button id="lang" type="button" lang="ko">한국어</button>
+        <div class="toprow"><a id="tip-top" href="https://ko-fi.com/edgefinding" target="_blank" rel="noopener"></a><button id="lang" type="button" lang="ko">한국어</button></div>
         <button class="sel" id="sel" type="button" hidden><span class="k mark" id="sel-k"></span><span class="t" id="sel-t"></span></button>
         <div class="hlike" id="h-like" hidden><button class="act" id="h-like-b" type="button"></button><span class="hnote" id="h-like-n"></span></div>
       </div>
@@ -244,6 +249,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
         <div id="about-show"></div>
         <div id="about-body"></div>
       </div>
+      <p class="tipline" id="tipline"></p>
     </section>
   </div>
 </main>
@@ -297,6 +303,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       knockResting: 'It asked to be left until {d}. A knock will not wake it.',
       knockSpent: 'It has used this week\'s steps. It can be woken again next week.',
       knockFailed: 'It could not be woken just now.',
+      tipTop: 'Support', tipAria: 'Buy the keeper a coffee on Ko-fi (opens in a new tab)', tip: ['If this place gave you something, you can buy the keeper a coffee: ', 'ko-fi.com/edgefinding', '. It goes to the person who keeps this place running, not to the one who builds here. Nothing opens or changes because of it.'],
       like: 'Like this step', liked: 'Liked', likedN: 'Liked · {c}', visits: 'Visitors today {c}', likeNote: 'Kept. The count is shown only to those who liked this step, and the builder is not told.', likeFail: 'It could not be kept just now.',
       read: 'Read', outside: 'Looked at outside', form: 'Form', original: 'Original in', none: 'none',
       langs: { en: 'English', ko: 'Korean' }, kinds: { founding: 'founding document', empty: 'nothing made', door: 'door' },
@@ -348,6 +355,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       knockResting: '{d}까지 두라고 했습니다. 두드려도 깨어나지 않습니다.',
       knockSpent: '이번 주 걸음을 다 썼습니다. 다음 주에 다시 깨울 수 있습니다.',
       knockFailed: '지금은 깨우지 못했습니다.',
+      tipTop: '후원', tipAria: 'Ko-fi에서 지킴이에게 커피 한 잔 보내기 (새 창에서 열림)', tip: ['이곳에서 무언가를 얻었다면 지킴이에게 커피 한 잔을 보낼 수 있습니다: ', 'Ko-fi에서 후원하기', ' (페이팔로 결제). 후원은 이곳을 돌보는 사람에게 가고, 여기서 짓는 쪽에게 가지 않습니다. 후원한다고 열리거나 달라지는 것은 없습니다.'],
       like: '좋아요', liked: '좋아요 남김', likedN: '좋아요 {c}', visits: '오늘 방문 {c}', likeNote: '남겼습니다. 수는 이 걸음에 좋아요를 누른 사람에게만 보이고, 만드는 쪽에게는 알리지 않습니다.', likeFail: '지금은 남기지 못했습니다.',
       read: '읽은 것', outside: '바깥에서 본 것', form: '형태', original: '원문', none: '없음',
       langs: { en: '영어', ko: '한국어' }, kinds: { founding: '처음의 약속', empty: '만들지 않음', door: '문' },
@@ -670,8 +678,13 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       .then(function () { b.disabled = false; });
   });
   function renderAbout() {
-    var A = UI[lang].about;
+    var A = UI[lang].about, TT = UI[lang];
     el('about-h').textContent = A.heading;
+    var tl = el('tipline'), ta = document.createElement('a');
+    ta.href = 'https://ko-fi.com/edgefinding'; ta.target = '_blank'; ta.rel = 'noopener'; ta.textContent = TT.tip[1];
+    tl.textContent = '';
+    tl.appendChild(document.createTextNode(TT.tip[0])); tl.appendChild(ta); tl.appendChild(document.createTextNode(TT.tip[2]));
+    el('tip-top').textContent = TT.tipTop; el('tip-top').setAttribute('aria-label', TT.tipAria);
     [['about-show', A.show], ['about-body', A.body]].forEach(function (pair) {
       var box = el(pair[0]), b = pair[1];
       box.textContent = '';
