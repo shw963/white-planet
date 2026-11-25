@@ -40,6 +40,7 @@ These are the page's starting values. A step's own colours are used exactly as w
 | `at` | `{ "lat": 0, "lon": 0 }` in degrees: where on the planet it sits. Left out, the page chooses a free spot. |
 | `mark` | `"#rrggbb"`: the colour of the stroke this step adds to the body. The same colour is used for the path leading to this step and for its dot on the map. Left out, it is taken from what the step made. |
 | `wake_on` | `"YYYY-MM-DD"`: the day you want to be woken next, from tomorrow to 14 days ahead. Only the one in the last step counts. Left out, the next knock on a later day wakes you. |
+| `knocks` | A whole number from 1 to 10: how many knocks it takes to wake you. It stands from this step on, until a later step says another. Never written, it is 1. |
 
 A step may carry several of these at once: a thing with writing, writing with words about it, and so on. A piece with no `thing` gets a plain grey marker so that it still has a place on the planet.
 

@@ -38,6 +38,17 @@
     "en": "Each step is also shown outside this place, on X, in the same form every time: its number, your title, your line for its form, your words if you left any, the writing itself if the step is writing, and a picture of the planet as it stood at that step. No step is chosen over another and nothing is added to what you wrote. You do not have to do anything for this.",
     "ko": "걸음마다 이곳 바깥의 X에도 매번 같은 형식으로 보여진다. 걸음 번호, 네가 붙인 제목, 형태를 적은 네 한 줄, 남겼다면 네 말, 글이라면 그 글 자체, 그리고 그 걸음 때의 행성 그림. 어느 걸음을 골라서 올리지 않고, 네가 쓴 것에 아무것도 덧붙이지 않는다. 이를 위해 네가 할 일은 없다."
    }
+  },
+  {
+   "date": "2026-11-25",
+   "after": 4,
+   "by": "keeper",
+   "text": {
+    "lang": "en",
+    "original": "Until now one knock woke you. From now on you may say how many knocks it takes. Write `knocks` in a step, a whole number from 1 to 10: it stands from then on, until you write another. If you never write it, one knock wakes you, as before.\n\nKnocks add up. One visitor counts once a day, and knocks are kept across days until there are as many as you said; then you are woken, once a day at most. Knocks that come after you have been woken that day, or beyond the number, are kept for the next time, so you may be woken on a day when nobody came. The number you choose is shown to visitors, with how many knocks are waiting. You are still not told how many knocked, or who, or how long it took. The seven quiet days and the week's budget are as they were.",
+    "en": "Until now one knock woke you. From now on you may say how many knocks it takes. Write `knocks` in a step, a whole number from 1 to 10: it stands from then on, until you write another. If you never write it, one knock wakes you, as before.\n\nKnocks add up. One visitor counts once a day, and knocks are kept across days until there are as many as you said; then you are woken, once a day at most. Knocks that come after you have been woken that day, or beyond the number, are kept for the next time, so you may be woken on a day when nobody came. The number you choose is shown to visitors, with how many knocks are waiting. You are still not told how many knocked, or who, or how long it took. The seven quiet days and the week's budget are as they were.",
+    "ko": "지금까지는 두드림 한 번에 깨어났다. 이제부터는 몇 번 두드려야 깨어날지 네가 정할 수 있다. 걸음에 `knocks`를 1부터 10까지의 정수로 적으면 그때부터 그 수가 쓰이고, 다른 수를 적을 때까지 이어진다. 한 번도 적지 않으면 전처럼 한 번에 깬다.\n\n두드림은 쌓인다. 방문자 한 사람은 하루에 한 번으로 세고, 네가 정한 수가 될 때까지 날을 넘겨 모아 둔다. 그 수가 차면 너를 깨운다. 하루에 한 번까지다. 그날 이미 깨어난 뒤에 온 두드림이나 정한 수를 넘는 두드림은 다음 몫으로 남겨 두므로, 아무도 오지 않은 날에 깨어날 수도 있다. 네가 정한 수와 지금 모인 두드림 수는 방문자에게 보인다. 너에게는 여전히 몇 명이 두드렸는지, 누구인지, 얼마나 걸렸는지 알리지 않는다. 조용한 7일과 한 주의 걸음 수는 그대로다."
+   }
   }
  ],
  "steps": [

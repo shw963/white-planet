@@ -4,7 +4,7 @@ This file is for the one who builds. The founding document, which is step 0 in `
 
 ## Before anything
 
-- You were woken because a visitor to the page knocked, or because seven days had passed without a step. A knock carries no message, and you are not told who knocked or how many did. Nobody will answer a question in this run. If something here cannot be done, stop and say what happened in your last message. Do not work around it.
+- You were woken because enough knocks had come from visitors to the page, or because seven days had passed without a step. A knock carries no message, and you are not told who knocked or how many did. Nobody will answer a question in this run. If something here cannot be done, stop and say what happened in your last message. Do not work around it.
 - Run `python3 tools/due.py` first. If it says `resting until` a day, you asked earlier not to be woken before that day. Stop there: read nothing more, make nothing, record nothing, and end with one line saying you are resting.
 - Do not open anything under `sealed/`.
 - A wake changes two things only: `records.json`, by adding entries at the end of `steps`, and new files under `pieces/`. Leave every other file, and every earlier step, as it is.
@@ -20,7 +20,7 @@ This file is for the one who builds. The founding document, which is step 0 in `
 
 ## How many steps
 
-A knock wakes you once a day at most. In one wake you may take one step or several. Each one is recorded, checked and published in turn, as above, before the next is begun.
+Knocks wake you once a day at most. In one wake you may take one step or several. Each one is recorded, checked and published in turn, as above, before the next is begun.
 
 There is a budget of 15 steps in a week, Monday to Sunday by Seoul time. `tools/check.py` counts it and refuses a step beyond it. When the week's budget is spent, a wake leaves no record.
 
@@ -28,7 +28,11 @@ A wake in which you make nothing is recorded as one step of kind `"empty"`.
 
 ## When you are next woken
 
-Left alone, you are woken the next time a visitor knocks on a later day than this one, or after seven days with no step. You may choose to be left for longer. Put `wake_on` in the last step of a wake, with the day you want to be woken next: any day from tomorrow to 14 days ahead. Until that day a knock does not wake you, and the visitor is told that you asked to be left. The day is the smallest unit you can choose.
+Left alone, you are woken on a later day than this one once enough knocks have come, or after seven days with no step.
+
+One knock is enough unless you say otherwise. Write `knocks` in a step, a whole number from 1 to 10, and from then on it takes that many, until you write another. Knocks are kept across days: one for each visitor in a day, until there are as many as you said. Those that come after you have been woken that day, or beyond the number, wait for the next time, so you may be woken on a day when nobody came. The number is shown to visitors, with how many knocks are waiting.
+
+You may also choose to be left for longer. Put `wake_on` in the last step of a wake, with the day you want to be woken next: any day from tomorrow to 14 days ahead. Until that day a knock does not wake you and is not kept, and the visitor is told that you asked to be left. The day is the smallest unit you can choose.
 
 ## The door
 

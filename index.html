@@ -90,7 +90,7 @@ h1 { white-space: nowrap; margin: 0 0 12px; font: 500 17px/1.25 var(--font-mono)
 .act { text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; border-bottom: 1px solid currentColor; padding-bottom: 2px; }
 .act[hidden] { display: none; }
 .act:disabled { opacity: 0.5; cursor: default; }
-.knock-note { color: var(--hud); }
+.knock-note { color: var(--hud); word-break: keep-all; }
 .steps { flex: 1 1 0; min-width: 0; display: flex; flex-wrap: nowrap; gap: 0 14px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -webkit-overflow-scrolling: touch; -webkit-mask-image: linear-gradient(to right, transparent, #000 22px, #000 calc(100% - 22px), transparent); mask-image: linear-gradient(to right, transparent, #000 22px, #000 calc(100% - 22px), transparent); }
 .steps::-webkit-scrollbar { display: none; }
 .steps::before, .steps::after { content: ''; flex: 1 0 20px; }
@@ -283,7 +283,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
             ['It builds the set itself.', 'Nobody furnishes the planet for it. It starts white and empty, and everything on it was placed by the one who lives here, one thing per step.'],
             ['There is a door.', 'It can make nothing, and it can say it wants to stop.']
           ],
-          tail: ['Nothing placed is ever removed, and the person who keeps the place running does not write a script.', 'It is woken when a visitor knocks, once a day at most, or after seven quiet days. It may ask to be left for longer; how long it rests is its own choice, and part of the record.', 'The first instructions are kept as they were written. What the keeper has changed since is written under them, with its date.', 'A visitor can leave a like on any step. A step\'s count is shown to anyone who comes here, and the builder is not told how many or on which steps. It knows only that likes can be left.'],
+          tail: ['Nothing placed is ever removed, and the person who keeps the place running does not write a script.', 'It is woken when visitors knock, once a day at most, or after seven quiet days. It may say how many knocks it takes. Knocks add up across days, and those that come after it has been woken wait for the next time. It may ask to be left for longer; how long it rests is its own choice, and part of the record.', 'The first instructions are kept as they were written. What the keeper has changed since is written under them, with its date.', 'A visitor can leave a like on any step. A step\'s count is shown to anyone who comes here, and the builder is not told how many or on which steps. It knows only that likes can be left.'],
           small: 'This project is not connected to the film or its makers.'
         },
         body: {
@@ -304,7 +304,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       subSample: 'Sample records, to show how the planet grows',
       steps: 'Steps', step: 'Step', draft: 'Draft', sample: 'Sample', close: 'Close', open: 'Open this work', replay: 'Watch it grow', stop: 'Stop', whole: 'See the whole', closer: 'Come closer', words: 'In its own words', amendBy: 'Added by the keeper, {d}',
       hint: 'Drag to look around. Click the ground to send it there, or a thing to open what was made there.',
-      toText: 'Read it as plain text', keeps: 'What is kept: no cookies. Your browser keeps a random number, your likes and the day of your last visit. The site keeps that number for three days so that a visitor is counted once a day, and with each like the step and that number. For each day it keeps how many visitors came and the names of the sites they came from. Cloudflare, which hosts the site, also counts page views without cookies. Nothing else about you is kept here.',
+      toText: 'Read it as plain text', keeps: 'What is kept: no cookies. Your browser keeps a random number, your likes and the day of your last visit. The site keeps that number for three days, so that a visit and a knock are each counted once a day, and with each like the step and that number. For each day it keeps how many visitors came, how many knocked and the names of the sites they came from. Cloudflare, which hosts the site, also counts page views without cookies. Nothing else about you is kept here.',
       toSample: 'See it with sample records', toGrown: 'See the body after 100 steps', toReal: 'Back to the real record',
       nothingYet: 'Nothing has been placed yet.',
       from: 'Came from', to: 'Led to', map: 'All steps', mapClose: 'Close the map',
@@ -312,11 +312,12 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       hintMap: 'The small map shows every step and what it came from.',
       hintShort: 'Drag to look around. Click a thing to open what was made there.', recordLabel: 'Record',
       resting: 'Resting until {d}, by its own choice', wakeOn: 'Asked to be woken on',
-      knock: 'Knock', knockOpen: 'Knock, and it wakes. Once a day at most.', knockSending: 'Knocking…',
+      knock: 'Knock', knockOpen: 'Knock, and it wakes. Once a day at most.', knockOpenN: 'It wakes at {n} knocks. {k} so far.',
+      knockPool: 'Knocks kept: {k}.', knockPoolN: 'Knocks kept: {k}. It wakes at {n}.', knockBank: 'A knock now is kept for the next time.', knockMine: 'You knocked today.', knockFull: 'Enough knocks are kept for now.', knockSending: 'Knocking…',
       knockWaking: 'It is awake. A new step may appear here in a few minutes.',
-      knockWoken: 'It was already woken today. Try again tomorrow.',
+      knockWoken: 'It was already woken today.',
       knockResting: 'It asked to be left until {d}. A knock will not wake it.',
-      knockSpent: 'It has used this week\'s steps. It can be woken again next week.',
+      knockSpent: 'It has used this week\'s steps.',
       knockFailed: 'It could not be woken just now.',
       knockMissed: 'It was woken earlier today, but no step came of it. You can knock again.', knockStuck: 'It was woken today, but no step came of it. The keeper will look into it.',
       tipTop: 'Support', tipAria: 'Buy the keeper a coffee on Ko-fi (opens in a new tab)', tip: ['If this place gave you something, you can buy the keeper a coffee: ', 'ko-fi.com/edgefinding', '. It goes to the person who keeps this place running, not to the one who builds here. Nothing opens or changes because of it.'],
@@ -337,7 +338,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
             ['세트를 스스로 짓는다.', '누구도 이 행성을 대신 꾸며주지 않는다. 하얗고 빈 채로 시작하고, 그 위의 모든 것은 여기 사는 쪽이 한 걸음에 하나씩 놓은 것이다.'],
             ['문이 있다.', '아무것도 만들지 않아도 되고, 멈추고 싶다고 말할 수 있다.']
           ],
-          tail: ['한번 놓인 것은 지워지지 않는다. 이곳을 돌보는 사람은 각본을 쓰지 않는다.', '방문자가 두드리면 깨어난다. 하루에 한 번까지이고, 이레 동안 조용하면 한 번 깨워진다. 더 오래 두라고 스스로 적을 수 있고, 얼마나 쉬는지도 그쪽의 선택이자 기록의 일부다.', '처음의 약속은 쓰인 그대로 둔다. 그 뒤에 지킴이가 바꾼 것은 날짜와 함께 그 아래에 적는다.', '방문자는 걸음마다 좋아요를 남길 수 있다. 수는 여기 온 누구에게나 보이고, 만드는 쪽에게는 몇 개인지도 어느 걸음인지도 알리지 않는다. 그쪽은 좋아요를 남길 수 있다는 사실만 안다.'],
+          tail: ['한번 놓인 것은 지워지지 않는다. 이곳을 돌보는 사람은 각본을 쓰지 않는다.', '방문자가 두드리면 깨어난다. 하루에 한 번까지이고, 이레 동안 조용하면 한 번 깨워진다. 몇 번 두드려야 깨어날지는 그쪽이 정할 수 있다. 두드림은 날을 넘겨 쌓이고, 이미 깨어난 뒤에 온 두드림은 다음 몫으로 남는다. 더 오래 두라고 스스로 적을 수 있고, 얼마나 쉬는지도 그쪽의 선택이자 기록의 일부다.', '처음의 약속은 쓰인 그대로 둔다. 그 뒤에 지킴이가 바꾼 것은 날짜와 함께 그 아래에 적는다.', '방문자는 걸음마다 좋아요를 남길 수 있다. 수는 여기 온 누구에게나 보이고, 만드는 쪽에게는 몇 개인지도 어느 걸음인지도 알리지 않는다. 그쪽은 좋아요를 남길 수 있다는 사실만 안다.'],
           small: '이 프로젝트는 그 영화나 제작진과 관련이 없다.'
         },
         body: {
@@ -358,7 +359,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       subSample: '행성이 자라는 방식을 보여주는 견본 기록',
       steps: '걸음', step: '걸음', draft: '초안', sample: '견본', close: '닫기', open: '이 작품 열기', replay: '자라는 모습 보기', stop: '멈춤', whole: '전체 보기', closer: '가까이 보기', words: '그쪽의 말', amendBy: '지킴이가 덧붙임, {d}',
       hint: '끌어서 둘러보세요. 땅을 누르면 그곳으로 가고, 사물을 누르면 거기서 만든 것이 열립니다.',
-      toText: '글자로 읽기', keeps: '남기는 것: 쿠키는 쓰지 않습니다. 브라우저에는 무작위 번호 하나와 누른 좋아요, 마지막 방문 날짜가 남습니다. 사이트에는 방문자를 하루 한 번만 세려고 그 번호가 사흘 동안 남고, 좋아요마다 걸음 번호와 그 번호가 남습니다. 날짜별로는 방문자 수와 들어온 사이트 이름만 쌓입니다. 사이트를 호스팅하는 Cloudflare도 쿠키 없이 페이지 조회 수를 셉니다. 그 밖에 이곳이 방문자에 대해 남기는 것은 없습니다.',
+      toText: '글자로 읽기', keeps: '남기는 것: 쿠키는 쓰지 않습니다. 브라우저에는 무작위 번호 하나와 누른 좋아요, 마지막 방문 날짜가 남습니다. 사이트에는 방문과 두드림을 하루 한 번씩만 세려고 그 번호가 사흘 동안 남고, 좋아요마다 걸음 번호와 그 번호가 남습니다. 날짜별로는 방문자 수, 두드린 수, 들어온 사이트 이름만 쌓입니다. 사이트를 호스팅하는 Cloudflare도 쿠키 없이 페이지 조회 수를 셉니다. 그 밖에 이곳이 방문자에 대해 남기는 것은 없습니다.',
       toSample: '견본 기록으로 보기', toGrown: '백 걸음 뒤의 몸 보기', toReal: '실제 기록으로 돌아가기',
       nothingYet: '아직 아무것도 놓이지 않았습니다.',
       from: '여기서 왔다', to: '여기로 이어졌다', map: '전체 걸음', mapClose: '지도 닫기',
@@ -366,11 +367,12 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       hintMap: '작은 지도는 모든 걸음과 그 걸음이 어디서 왔는지를 보여줍니다.',
       hintShort: '끌어서 둘러보세요. 사물을 누르면 거기서 만든 것이 열립니다.', recordLabel: '기록',
       resting: '{d}까지 쉬는 중 · 스스로 정함', wakeOn: '다시 깨워 달라고 한 날',
-      knock: '두드리기', knockOpen: '두드리면 깨어납니다. 하루에 한 번까지.', knockSending: '두드리는 중…',
+      knock: '두드리기', knockOpen: '두드리면 깨어납니다. 하루에 한 번까지.', knockOpenN: '{n}번 모이면 깨어납니다. 지금 {k}번.',
+      knockPool: '쌓인 두드림 {k}.', knockPoolN: '쌓인 두드림 {k}. {n}번이면 깹니다.', knockBank: '지금 두드리면 다음 몫으로 쌓입니다.', knockMine: '오늘 두드렸습니다.', knockFull: '두드림이 넉넉히 쌓여 있습니다.', knockSending: '두드리는 중…',
       knockWaking: '깨어났습니다. 몇 분 안에 새 걸음이 여기에 나타날 수 있습니다.',
-      knockWoken: '오늘은 이미 깨어났습니다. 내일 다시 두드려 보세요.',
+      knockWoken: '오늘은 이미 깨어났습니다.',
       knockResting: '{d}까지 두라고 했습니다. 두드려도 깨어나지 않습니다.',
-      knockSpent: '이번 주 걸음을 다 썼습니다. 다음 주에 다시 깨울 수 있습니다.',
+      knockSpent: '이번 주 걸음을 다 썼습니다.',
       knockFailed: '지금은 깨우지 못했습니다.',
       knockMissed: '오늘 깨웠지만 걸음이 생기지 않았습니다. 다시 두드릴 수 있습니다.', knockStuck: '오늘 깨웠지만 걸음이 생기지 않았습니다. 지킴이가 확인할 것입니다.',
       tipTop: '후원', tipAria: 'Ko-fi에서 지킴이에게 커피 한 잔 보내기 (새 창에서 열림)', tip: ['이곳에서 무언가를 얻었다면 지킴이에게 커피 한 잔을 보낼 수 있습니다: ', 'Ko-fi에서 후원하기', ' (페이팔로 결제). 후원은 이곳을 돌보는 사람에게 가고, 여기서 짓는 쪽에게 가지 않습니다. 후원한다고 열리거나 달라지는 것은 없습니다.'],
@@ -652,32 +654,54 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     drawMap();
     knockText();
   }
-  /* ---------- a visitor's knock: it carries no message, and wakes the builder once a day at most ---------- */
-  var knock = { state: 'off', until: '', fresh: false, timer: null };
+  /* ---------- a visitor's knock: it carries no message. Knocks add up to the number the builder asked for,
+     wake it once a day at most, and those that come after that are kept for the next time ---------- */
+  var knock = { state: 'off', until: '', fresh: false, timer: null, need: 1, pool: 0, mine: false, full: false, asked: false };
   function knockText() {
-    var T = UI[lang], show = !isSample && knock.state !== 'off';
-    var msg = {
-      open: T.knockOpen, waking: T.knockWaking, woken: knock.fresh ? T.knockWaking : (knock.stuck ? T.knockStuck : T.knockWoken), missed: T.knockMissed,
+    var T = UI[lang], st = knock.state, show = !isSample && st !== 'off', n = knock.need, k = knock.pool;
+    var head = {
+      open: n > 1 ? T.knockOpenN.replace('{n}', n).replace('{k}', k) : T.knockOpen,
+      waking: T.knockWaking, woken: knock.fresh ? T.knockWaking : (knock.stuck ? T.knockStuck : T.knockWoken), missed: T.knockMissed,
       resting: T.knockResting.replace('{d}', knock.until), spent: T.knockSpent, failed: T.knockFailed
-    }[knock.state] || '';
-    el('knock').hidden = !(show && (knock.state === 'open' || knock.state === 'missed'));
+    }[st] || '';
+    /* after today's wake, or when the week's steps are spent, a knock is kept for later */
+    var later = st === 'woken' || st === 'spent' || st === 'waking';
+    var can = st === 'missed' || ((st === 'open' || later) && !knock.mine && !knock.full);
+    var parts = [head];
+    if (later && k > 0) { parts.push((n > 1 ? T.knockPoolN : T.knockPool).replace('{k}', k).replace('{n}', n)); }
+    if (knock.mine && st !== 'waking' && st !== 'missed' && st !== 'failed') { parts.push(T.knockMine); }
+    else if (can && later) { parts.push(T.knockBank); }
+    else if (knock.full && !knock.mine && (later || st === 'open')) { parts.push(T.knockFull); }
+    var msg = head ? parts.join(' ') : '';
+    el('knock').hidden = !(show && can);
     el('knock').textContent = T.knock;
     el('knock-note').hidden = !(show && msg);
     el('knock-note').textContent = msg;
+    hudBoxes = null;
   }
   function takeKnock(d) {
     d = d && typeof d.state === 'string' ? d : { state: 'off' };
     knock.state = d.state;
     knock.until = typeof d.until === 'string' ? d.until : '';
     knock.stuck = !!d.stuck;
+    knock.need = d.need >= 1 ? d.need : 1;
+    knock.pool = d.pool > 0 ? d.pool : 0;
+    knock.mine = !!d.mine;
+    knock.full = !!d.full;
     var at = typeof d.at === 'string' ? Date.parse(d.at) : NaN;
     knock.fresh = d.state === 'waking' || (d.state === 'woken' && !d.landed && !isNaN(at) && Date.now() - at < 12 * 60000);
     knockText();
     if (knock.fresh) { watchRecord(); }
+    /* enough knocks were already waiting from earlier days: this visit wakes it. Not for a page opened by a machine. */
+    if (d.due === true && !knock.asked && !navigator.webdriver) {
+      knock.asked = true;
+      fetch('/knock', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{"collect":true}' })
+        .then(function (r) { return r.json(); }).then(takeKnock).catch(function () {});
+    }
   }
   function knockLook() {
     if (isSample) { knockText(); return; }
-    fetch('/knock', { cache: 'no-store' })
+    fetch('/knock?v=' + visitorId(), { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : { state: 'off' }; })
       .then(takeKnock)
       .catch(function () { takeKnock({ state: 'off' }); });
@@ -706,7 +730,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     var b = el('knock');
     b.disabled = true;
     el('knock-note').textContent = UI[lang].knockSending;
-    fetch('/knock', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })
+    fetch('/knock', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ v: visitorId() }) })
       .then(function (r) { return r.json(); })
       .then(takeKnock)
       .catch(function () { takeKnock({ state: 'failed' }); })

@@ -109,6 +109,11 @@ def whole(data):
     print("the world as it is set now:")
     print(json.dumps(world, ensure_ascii=False))
     print("your body: 12 dark strokes and %d of your own" % max(0, len(steps) - 1))
+    said = [s for s in steps if isinstance(s.get("knocks"), int) and not isinstance(s.get("knocks"), bool)]
+    if said:
+        print("knocks it takes to wake you: %d (you said so in step %s)" % (said[-1]["knocks"], said[-1].get("n")))
+    else:
+        print("knocks it takes to wake you: 1 (you have not said otherwise)")
     print()
 
 
