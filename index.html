@@ -1537,7 +1537,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     focus = fly && s ? n : -1;
     if (fly) { openWork(s); } else { hideWork(); closeUp = false; skyLift = 0; }
     /* keep the address pointing at the step being looked at, so that it can be passed on */
-    if (fly && s && !isSample && !replay && shotN < 0 && location.protocol !== 'file:') {
+    if (fly && s && !isSample && !replay && shotN < 0 && !shooting && location.protocol !== 'file:') {
       try { history.replaceState(null, '', (s.n === data.steps[data.steps.length - 1].n ? '/' : '/s/' + s.n) + location.hash); } catch (e) {}
     }
     renderFrame();
@@ -1792,6 +1792,27 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
         document.title = 'shot ' + n;
       }, 'image/jpeg', 0.92);
     });
+  }
+
+  /* ?film=1: the page hands out one frame at a time, for making a short film of the planet growing */
+  if (/[?&]film=1(?:&|$)/.test(location.search)) {
+    var filmT = 0;
+    window.__film = {
+      setup: function (w, h) {
+        shooting = true;
+        renderer.setPixelRatio(1); renderer.setSize(w, h, false);
+        camera.aspect = w / h; camera.updateProjectionMatrix();
+        showUpTo(0, false); select(0, false); hideWork();
+        whole = true; wholeMix = 1; closeUp = false;
+        wholeAng = Math.atan2(p.z, p.x); wholeLat = Math.asin(p.y) - 0.5;
+        filmT = performance.now();
+        for (var i = 0; i < 90; i++) { filmT += 1000 / 30; frame(filmT); }
+        return data.steps.map(function (s) { return { n: s.n, title: s.title ? s.title.en : '' }; });
+      },
+      whole: function (on) { whole = !!on; if (on) { closeUp = false; hideWork(); } },
+      step: function (k) { showUpTo(k, true); select(k, true); hideWork(); },
+      frame: function () { filmT += 1000 / 30; frame(filmT); return canvas.toDataURL('image/jpeg', 0.9); }
+    };
   }
 
   function load() {
