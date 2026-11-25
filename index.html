@@ -775,6 +775,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     el('sel-k').textContent = cur ? T.step + ' ' + pad(cur.n) : '';
     el('sel-t').textContent = cur ? pick(cur.title) : '';
     var hf = el('h-facts'), rows = cur && !replay ? notable(cur) : [];
+    if (cur && !replay && cur.kind !== 'founding' && wordsOf(cur) && !longWords(cur)) { rows.unshift([T.words, wordsOf(cur)]); }
     hf.textContent = '';
     hf.hidden = sel.hidden || !rows.length;
     rows.forEach(function (row) {
@@ -1099,9 +1100,13 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
   var CSP = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'unsafe-inline\'; style-src \'unsafe-inline\'; img-src data: blob:; media-src data: blob:; font-src data:">';
   function hasWork(s) { return !!(s && (s.text || s.piece || s.words)); }
   /* The side view opens only when it holds something the planet does not already show: a piece made with code,
-     the builder's words about a step, or writing that did not fit on its plate. A short piece of writing that
+     words of the builder's too long for the corner of the stage, or writing that did not fit on its plate. A short piece of writing that
      can be read whole on the planet is not said a second time beside it. */
-  function needsView(s) { return !!(s && (s.piece || s.words || (s.text && (s.textCut || !s.sprite)))); }
+  function wordsOf(s) { var w = s && s.words; return w && typeof w === 'object' ? String(w[lang] || w.original || '') : ''; }
+  /* The builder's words about a step are shown at the top right of the stage, under the step's title.
+     Only when they are too long for that corner do they need the side view. */
+  function longWords(s) { return wordsOf(s).length > 160; }
+  function needsView(s) { return !!(s && (s.piece || longWords(s) || (s.text && (s.textCut || !s.sprite)))); }
   function mountPiece(s) {
     var holder = el('w-piece');
     holder.textContent = '';
