@@ -148,7 +148,15 @@ button.chip { display: inline-flex; align-items: baseline; max-width: 100%; text
 button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 .below { max-width: 1120px; margin: 0 auto; padding: 64px 32px 96px; display: flex; flex-direction: column; gap: 72px; }
-.record, .about { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px 48px; }
+.record, .about, .worldnow { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px 48px; }
+.worldnow { border-top: 1px solid var(--line); padding-top: 40px; }
+.worldnow h2 { margin: 0; }
+.worldnow .small { margin: 0 0 14px; font-size: 13px; line-height: 1.6; color: var(--ink-muted); max-width: 44em; word-break: keep-all; }
+.worldnow dl { margin: 0; max-width: 44em; display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content; gap: 10px 24px; align-items: baseline; font-size: 14px; line-height: 1.6; color: var(--ink-soft); }
+.worldnow dt { font: 400 11px/1.9 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted); }
+.worldnow dd { margin: 0; min-width: 0; word-break: keep-all; }
+.worldnow .who { font-size: 13px; color: var(--ink-muted); white-space: nowrap; }
+.swatch { display: inline-block; width: 11px; height: 11px; margin-right: 8px; border: 1px solid var(--line-strong); vertical-align: -1px; }
 .side { display: flex; flex-direction: column; gap: 12px; }
 .label { margin: 0; font: 400 11px/1.6 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); }
 .hint { margin: 0; font-size: 13px; line-height: 1.6; color: var(--ink-muted); }
@@ -165,7 +173,8 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
   .work-open .hud.tr, .work-open .hud.bottom { right: calc(min(440px, 92vw) + 28px); }
   .work-open .sel, .work-open .hlike { display: none; }
 }
-@media (max-width: 860px) { .record, .about { grid-template-columns: 1fr; } .tipline { grid-column: 1; } }
+@media (max-width: 860px) { .record, .about, .worldnow { grid-template-columns: 1fr; } .tipline { grid-column: 1; } }
+@media (max-width: 560px) { .worldnow dl { display: block; } .worldnow dt { margin-top: 14px; } .worldnow dt:first-child { margin-top: 0; } .worldnow .who { margin-top: 2px; white-space: normal; } }
 @media (max-width: 700px) {
   .stage { height: 72vh; min-height: 420px; }
   .hud.tl { left: 16px; top: 16px; max-width: 30ch; }
@@ -264,6 +273,13 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
         <dl class="facts" id="r-facts"></dl>
       </div>
     </article>
+    <section class="worldnow" id="worldnow" aria-labelledby="wn-h" hidden>
+      <div class="side"><h2 class="label mark" id="wn-h"></h2></div>
+      <div class="main">
+        <p class="small" id="wn-note"></p>
+        <dl id="wn-list"></dl>
+      </div>
+    </section>
     <section class="about" aria-labelledby="about-h">
       <div class="side"><h2 class="label mark" id="about-h"></h2></div>
       <div class="cols">
@@ -319,6 +335,20 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
           tail: [],
           small: 'The figure may change as the steps go on. If it does, the change is part of the record.'
         }
+      },
+      w: {
+        label: 'The world now', changed: 'Changed the world', first: 'as at the start',
+        note: 'The sky, the light and the air of this world are changed by the builder, in steps. What has not been changed is as it was at the start.',
+        item: { air: 'Air', light: 'Day and night', sky: 'Sky', ground: 'Ground', haze: 'Haze' },
+        airNone: 'no points adrift', airStill: '{c} points adrift, staying where they are', airFall: '{c} points coming down{s}', airRise: '{c} points going up{s}',
+        slow2: ' very slowly', slow: ' slowly', fast: ' fast', white: 'white', coloured: 'coloured',
+        lightNone: 'none: the light has no place, and the whole planet is lit alike', lightStill: 'the light stands still over one place: that half is day, the other night', lightTurn: 'the light goes round once in {h}, so day and night change',
+        hours: '{n} hours', mins: '{n} minutes', days: '{n} days', light: 'light ', dark: 'dark ', greyish: 'greyish ',
+        greys: ['white', 'light grey', 'grey', 'dark grey', 'black'], hues: ['red', 'orange', 'yellow', 'green', 'teal', 'blue', 'violet', 'pink'], hazeWords: ['almost none', 'thin', 'thick', 'very thick'],
+        cAirFallStart: 'the points that only drifted began to come down{s}', cAirRiseStart: 'the points began to go up{s}', cAirStop: 'the points stopped and only drift', cAirFaster: 'the points move faster', cAirSlower: 'the points move more slowly',
+        cAirMore: 'more of them', cAirLess: 'fewer of them', cAirBig: 'larger', cAirSmall: 'smaller', cAirDriftMore: 'drifting sideways faster', cAirDriftLess: 'drifting sideways more slowly', cAirColor: 'their colour changed',
+        cLightPlace: 'the light was given a place, so there is day and night', cLightNoPlace: 'the light lost its place, so there is no day or night', cLightMove: 'the light was moved', cLightTurn: 'the light began to go round, once in {h}', cLightTurnChange: 'the light now goes round once in {h}', cLightStop: 'the light stopped', cLightColor: 'the colour of the light changed', cLightBright: 'the light became brighter', cLightDim: 'the light became weaker', cAmbMore: 'the shade became lighter', cAmbLess: 'the shade became darker',
+        cSky: 'its colour changed', cGround: 'its colour changed', cHazeMore: 'thicker', cHazeLess: 'thinner'
       },
       other: '한국어', title: 'Inverted Truman Show', sub: 'Starting from a white planet, one thing per step',
       subSample: 'Sample records, to show how the planet grows',
@@ -385,6 +415,20 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
           tail: [],
           small: '이 모습은 걸음이 쌓이면서 바뀔 수 있다. 바뀐다면 그 변화도 기록의 일부다.'
         }
+      },
+      w: {
+        label: '지금의 세계', changed: '세계를 바꿈', first: '처음 그대로',
+        note: '이 세계의 하늘과 빛, 공기는 지음이가 걸음으로 바꿉니다. 바꾼 적 없는 것은 처음 그대로입니다.',
+        item: { air: '공기', light: '낮과 밤', sky: '하늘', ground: '땅', haze: '안개' },
+        airNone: '떠다니는 점이 없음', airStill: '{c} 점들이 떠 있기만 함', airFall: '{c} 점들이 {s}내려옴', airRise: '{c} 점들이 {s}올라감',
+        slow2: '아주 천천히 ', slow: '천천히 ', fast: '빠르게 ', white: '흰', coloured: '색이 있는',
+        lightNone: '없음. 빛에 자리가 없어 행성 전체가 똑같이 밝음', lightStill: '빛이 한 곳 위에 멈춰 있음. 그쪽 절반은 낮, 반대쪽은 밤', lightTurn: '빛이 {h}에 한 바퀴 돎. 낮과 밤이 바뀜',
+        hours: '{n}시간', mins: '{n}분', days: '{n}일', light: '밝은 ', dark: '어두운 ', greyish: '회색빛 ',
+        greys: ['흰색', '밝은 회색', '회색', '어두운 회색', '검정'], hues: ['빨강', '주황', '노랑', '초록', '청록', '파랑', '보라', '분홍'], hazeWords: ['거의 없음', '옅음', '짙음', '아주 짙음'],
+        cAirFallStart: '떠 있기만 하던 점들이 {s}내려오기 시작함', cAirRiseStart: '점들이 {s}올라가기 시작함', cAirStop: '점들이 멈춰 떠 있기만 함', cAirFaster: '점들이 더 빨리 움직임', cAirSlower: '점들이 더 천천히 움직임',
+        cAirMore: '점이 많아짐', cAirLess: '점이 줄어듦', cAirBig: '점이 커짐', cAirSmall: '점이 작아짐', cAirDriftMore: '옆으로 더 빨리 흐름', cAirDriftLess: '옆으로 더 천천히 흐름', cAirColor: '점의 색이 바뀜',
+        cLightPlace: '빛에 자리가 생겨 낮과 밤이 생김', cLightNoPlace: '빛의 자리가 사라져 낮과 밤이 없어짐', cLightMove: '빛의 자리가 옮겨짐', cLightTurn: '빛이 {h}에 한 바퀴 돌기 시작함', cLightTurnChange: '빛이 이제 {h}에 한 바퀴 돎', cLightStop: '빛이 멈춤', cLightColor: '빛의 색이 바뀜', cLightBright: '빛이 밝아짐', cLightDim: '빛이 약해짐', cAmbMore: '그늘이 밝아짐', cAmbLess: '그늘이 어두워짐',
+        cSky: '색이 바뀜', cGround: '색이 바뀜', cHazeMore: '짙어짐', cHazeLess: '옅어짐'
       },
       other: 'English', title: '뒤집힌 트루먼쇼', sub: '하얀 행성에서 시작해, 한 걸음에 하나씩',
       subSample: '행성이 자라는 방식을 보여주는 견본 기록',
@@ -869,6 +913,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       if (pair[0] === 'about-knock') { var now = document.createElement('p'); now.className = 'small'; now.id = 'knock-now'; box.appendChild(now); }
     });
     knockText();
+    renderWorldNow();
   }
   function renderRecord() {
     var T = UI[lang], s = stepByN(selected);
@@ -908,6 +953,10 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     }
     if (s.kind !== 'founding') {
       if (s.form) { fact(T.form, s.form); }
+      if (s.world && typeof s.world === 'object') {
+        var wt = worldTrace().at[s.n], wl = wt ? worldChangeWords(wt.before, wt.after, T.w) : [];
+        if (wl.length) { fact(T.w.changed, wl.join(' ')); }
+      }
       if (s.text && s.text.lang) { fact(T.original, T.langs[s.text.lang] || s.text.lang); }
       lineageRows(facts, s);
       fact(T.read, s.read && s.read.length ? s.read.join(', ') : T.none);
@@ -1512,6 +1561,127 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       s.autoAt = { lat: Math.asin(q.y) * 180 / Math.PI, lon: Math.atan2(q.z, q.x) * 180 / Math.PI };
     });
   }
+  /* what one step changes in the world: used to build the planet, and to say in plain words what was changed */
+  function applyWorldStep(w, s) {
+    if (s.world && typeof s.world === 'object') {
+      if (s.world.sky) { w.sky = s.world.sky; }
+      if (s.world.planet) { w.planet = s.world.planet; }
+      var ws = s.world.sun, wa = s.world.air;
+      if (ws) {
+        w.sun.color = ws.color || w.sun.color;
+        w.sun.intensity = num(ws.intensity, w.sun.intensity);
+        if ('from' in ws) {
+          var okFrom = ws.from && typeof ws.from.lat === 'number' && typeof ws.from.lon === 'number';
+          w.sun.from = okFrom ? { lat: clamp(ws.from.lat, -90, 90), lon: ws.from.lon } : null;
+          w.sun.t0 = Date.parse(String(s.date) + 'T00:00:00+09:00') || 0;
+        }
+        if ('turn' in ws) { w.sun.turn = num(ws.turn, 0) > 0 ? clamp(ws.turn, 0.05, 720) : 0; }
+      }
+      w.ambient = num(s.world.ambient, w.ambient);
+      w.haze = clamp(num(s.world.haze, w.haze), 0, 1);
+      if (wa && typeof wa === 'object') {
+        w.air.amount = clamp(num(wa.amount, w.air.amount), 0, 1);
+        w.air.color = wa.color || w.air.color;
+        w.air.fall = clamp(num(wa.fall, w.air.fall), -1, 1);
+        w.air.drift = clamp(num(wa.drift, w.air.drift), 0, 1);
+        w.air.size = clamp(num(wa.size, w.air.size), 0.5, 3);
+      }
+    }
+  }
+  /* The world after each step, what it was before, and which step last set each part of it. */
+  function worldTrace() {
+    var w = JSON.parse(JSON.stringify(DEFAULT_WORLD)), by = { air: -1, light: -1, sky: -1, ground: -1, haze: -1 }, out = { at: {} };
+    data.steps.forEach(function (s) {
+      var before = JSON.parse(JSON.stringify(w)), sw = s.world;
+      applyWorldStep(w, s);
+      if (sw && typeof sw === 'object') {
+        if (sw.air && typeof sw.air === 'object') { by.air = s.n; }
+        if (sw.sun && typeof sw.sun === 'object') { by.light = s.n; }
+        if (sw.sky) { by.sky = s.n; }
+        if (sw.planet) { by.ground = s.n; }
+        if (typeof sw.haze === 'number') { by.haze = s.n; }
+      }
+      out.at[s.n] = { before: before, after: JSON.parse(JSON.stringify(w)) };
+    });
+    out.now = w; out.by = by;
+    return out;
+  }
+  function paceWord(v, W) { v = Math.abs(v); return v < 0.08 ? W.slow2 : (v < 0.3 ? W.slow : (v < 0.6 ? '' : W.fast)); }
+  function spanWord(h, W) { return h < 1 ? W.mins.replace('{n}', Math.round(h * 60)) : (h <= 72 ? W.hours.replace('{n}', Math.round(h * 10) / 10) : W.days.replace('{n}', Math.round(h / 24 * 10) / 10)); }
+  function isWhite(hex) { var m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(String(hex || '')); return !m || (parseInt(m[1], 16) > 225 && parseInt(m[2], 16) > 225 && parseInt(m[3], 16) > 225); }
+  /* a rough everyday name for a colour, so that nobody has to read a colour code */
+  function colourName(hex, W) {
+    var m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(String(hex || ''));
+    if (!m) { return String(hex || ''); }
+    var r = parseInt(m[1], 16) / 255, g = parseInt(m[2], 16) / 255, b = parseInt(m[3], 16) / 255;
+    var mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn, sat = d < 1e-6 ? 0 : d / (1 - Math.abs(2 * l - 1));
+    if (sat < 0.12 || d < 0.08) { return W.greys[l > 0.9 ? 0 : (l > 0.6 ? 1 : (l > 0.3 ? 2 : (l > 0.12 ? 3 : 4)))]; }
+    var h = mx === r ? ((g - b) / d + 6) % 6 : (mx === g ? (b - r) / d + 2 : (r - g) / d + 4);
+    h *= 60;
+    var name = W.hues[h < 15 ? 0 : (h < 45 ? 1 : (h < 70 ? 2 : (h < 165 ? 3 : (h < 200 ? 4 : (h < 255 ? 5 : (h < 290 ? 6 : (h < 345 ? 7 : 0)))))))];
+    return (sat < 0.3 ? W.greyish : '') + (l > 0.7 ? W.light : (l < 0.35 ? W.dark : '')) + name;
+  }
+  function worldNowWords(w, W) {
+    var a = w.air, c = isWhite(a.color) ? W.white : W.coloured, air, light;
+    if (a.amount < 0.01) { air = W.airNone; }
+    else if (a.fall > 0.02) { air = W.airFall.replace('{c}', c).replace('{s}', paceWord(a.fall, W)); }
+    else if (a.fall < -0.02) { air = W.airRise.replace('{c}', c).replace('{s}', paceWord(a.fall, W)); }
+    else { air = W.airStill.replace('{c}', c); }
+    if (!w.sun.from) { light = W.lightNone; }
+    else if (w.sun.turn > 0) { light = W.lightTurn.replace('{h}', spanWord(w.sun.turn, W)); }
+    else { light = W.lightStill; }
+    return { air: air, light: light, sky: w.sky, ground: w.planet, haze: W.hazeWords[w.haze < 0.2 ? 0 : (w.haze < 0.5 ? 1 : (w.haze < 0.75 ? 2 : 3))] };
+  }
+  /* what a step changed, part by part, as short plain sentences made from the record's own numbers */
+  function worldChangeWords(b, a, W) {
+    var out = [], air = [], light = [], eps = 0.004;
+    var fb = b.air.fall, fa = a.air.fall, sb = fb > 0.02 ? 1 : (fb < -0.02 ? -1 : 0), sa = fa > 0.02 ? 1 : (fa < -0.02 ? -1 : 0);
+    if (sb !== sa) { air.push(sa > 0 ? W.cAirFallStart.replace('{s}', paceWord(fa, W)) : (sa < 0 ? W.cAirRiseStart.replace('{s}', paceWord(fa, W)) : W.cAirStop)); }
+    else if (sa && Math.abs(Math.abs(fa) - Math.abs(fb)) > eps) { air.push(Math.abs(fa) > Math.abs(fb) ? W.cAirFaster : W.cAirSlower); }
+    if (Math.abs(a.air.amount - b.air.amount) > eps) { air.push(a.air.amount > b.air.amount ? W.cAirMore : W.cAirLess); }
+    if (Math.abs(a.air.size - b.air.size) > eps) { air.push(a.air.size > b.air.size ? W.cAirBig : W.cAirSmall); }
+    if (Math.abs(a.air.drift - b.air.drift) > eps) { air.push(a.air.drift > b.air.drift ? W.cAirDriftMore : W.cAirDriftLess); }
+    if (String(a.air.color).toLowerCase() !== String(b.air.color).toLowerCase()) { air.push(W.cAirColor); }
+    var pb = b.sun.from, pa = a.sun.from;
+    if (!pb && pa) { light.push(W.cLightPlace); }
+    else if (pb && !pa) { light.push(W.cLightNoPlace); }
+    else if (pb && pa && (pb.lat !== pa.lat || pb.lon !== pa.lon)) { light.push(W.cLightMove); }
+    if (!(b.sun.turn > 0) && a.sun.turn > 0) { light.push(W.cLightTurn.replace('{h}', spanWord(a.sun.turn, W))); }
+    else if (b.sun.turn > 0 && !(a.sun.turn > 0)) { light.push(W.cLightStop); }
+    else if (a.sun.turn > 0 && a.sun.turn !== b.sun.turn) { light.push(W.cLightTurnChange.replace('{h}', spanWord(a.sun.turn, W))); }
+    if (String(a.sun.color).toLowerCase() !== String(b.sun.color).toLowerCase()) { light.push(W.cLightColor); }
+    if (Math.abs(a.sun.intensity - b.sun.intensity) > eps) { light.push(a.sun.intensity > b.sun.intensity ? W.cLightBright : W.cLightDim); }
+    if (Math.abs(a.ambient - b.ambient) > eps) { light.push(a.ambient > b.ambient ? W.cAmbMore : W.cAmbLess); }
+    if (air.length) { out.push(W.item.air + ': ' + air.join(', ') + '.'); }
+    if (light.length) { out.push(W.item.light + ': ' + light.join(', ') + '.'); }
+    if (String(a.sky).toLowerCase() !== String(b.sky).toLowerCase()) { out.push(W.item.sky + ': ' + W.cSky + ' (' + colourName(a.sky, W) + ').'); }
+    if (String(a.planet).toLowerCase() !== String(b.planet).toLowerCase()) { out.push(W.item.ground + ': ' + W.cGround + ' (' + colourName(a.planet, W) + ').'); }
+    if (Math.abs(a.haze - b.haze) > eps) { out.push(W.item.haze + ': ' + (a.haze > b.haze ? W.cHazeMore : W.cHazeLess) + '.'); }
+    return out;
+  }
+  /* "The world now": each part of the world in plain words, and the step that set it. Facts from the record only. */
+  function renderWorldNow() {
+    var box = el('worldnow'), W = UI[lang].w, list = el('wn-list');
+    box.hidden = data.steps.length < 2;
+    if (box.hidden) { return; }
+    el('wn-h').textContent = W.label;
+    el('wn-note').textContent = W.note;
+    list.textContent = '';
+    var tr = worldTrace(), now = worldNowWords(tr.now, W);
+    ['air', 'light', 'sky', 'ground', 'haze'].forEach(function (k) {
+      var dt = document.createElement('dt'), dd = document.createElement('dd'), who = document.createElement('dd');
+      dt.textContent = W.item[k];
+      if (k === 'sky' || k === 'ground') {
+        var chip = document.createElement('span');
+        chip.className = 'swatch'; chip.style.background = now[k];
+        dd.appendChild(chip); dd.appendChild(document.createTextNode(colourName(now[k], W)));
+      } else { dd.textContent = now[k]; }
+      who.className = 'who';
+      if (tr.by[k] >= 0 && byN[tr.by[k]]) { chipList(who, [tr.by[k]]); }
+      else { who.textContent = W.first; }
+      list.appendChild(dt); list.appendChild(dd); list.appendChild(who);
+    });
+  }
   function buildWorld() {
     clearWorld();
     autoPlace();
@@ -1535,30 +1705,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       if (!okAt(at)) { at = s.autoAt || null; }
       s.dir = at ? dirOf(at, new V()) : null;
       s.group = null;
-      if (s.world) {
-        if (s.world.sky) { w.sky = s.world.sky; }
-        if (s.world.planet) { w.planet = s.world.planet; }
-        var ws = s.world.sun, wa = s.world.air;
-        if (ws) {
-          w.sun.color = ws.color || w.sun.color;
-          w.sun.intensity = num(ws.intensity, w.sun.intensity);
-          if ('from' in ws) {
-            var okFrom = ws.from && typeof ws.from.lat === 'number' && typeof ws.from.lon === 'number';
-            w.sun.from = okFrom ? { lat: clamp(ws.from.lat, -90, 90), lon: ws.from.lon } : null;
-            w.sun.t0 = Date.parse(String(s.date) + 'T00:00:00+09:00') || 0;
-          }
-          if ('turn' in ws) { w.sun.turn = num(ws.turn, 0) > 0 ? clamp(ws.turn, 0.05, 720) : 0; }
-        }
-        w.ambient = num(s.world.ambient, w.ambient);
-        w.haze = clamp(num(s.world.haze, w.haze), 0, 1);
-        if (wa && typeof wa === 'object') {
-          w.air.amount = clamp(num(wa.amount, w.air.amount), 0, 1);
-          w.air.color = wa.color || w.air.color;
-          w.air.fall = clamp(num(wa.fall, w.air.fall), -1, 1);
-          w.air.drift = clamp(num(wa.drift, w.air.drift), 0, 1);
-          w.air.size = clamp(num(wa.size, w.air.size), 0.5, 3);
-        }
-      }
+      applyWorldStep(w, s);
       worldAfter[s.n] = JSON.parse(JSON.stringify(w));
       if (!s.dir) { return; }
       var own = s.thing && Array.isArray(s.thing.parts) && s.thing.parts.length;
