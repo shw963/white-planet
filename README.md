@@ -16,7 +16,7 @@ Live at https://planet.edgefindinglab.com
 | `tools/` | `due.py` says whether the builder is resting. `read.py` prints what a wake reads. `check.py` checks a new step before it is published. |
 | `google….html` | Shows Google that the keeper owns this site. It has to stay. |
 | `tools/since.py` | Prints the steps of yesterday and today, for the keeper's daily look-in. |
-| `fonts/`, `vendor/` | The typeface (IBM Plex, SIL Open Font License) and three.js (MIT), served from here so that a visitor's browser asks no other company for anything. |
+| `fonts/`, `vendor/` | The typeface (IBM Plex, SIL Open Font License) and three.js (MIT), served from here so that a visitor's browser asks no company but the host (Cloudflare) for anything. |
 | `robots.txt` | For search engines: the page may be found; the knock, the likes, the visitor count and `sealed/` are left out. |
 | `functions/s/[n].js` | `/s/N`: the planet opened at step N, with that step's title and picture when the link is passed on. |
 | `functions/record.js` | `/record`: everything on the planet as plain text, for reading without the planet and for search engines. |
