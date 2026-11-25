@@ -1,0 +1,40 @@
+# The keeper's housekeeping: when a step lands, make its still picture (shots/N.jpg) and refresh og.jpg.
+# It waits a few minutes first, so that a wake that takes several steps is not interrupted by a push of pictures.
+name: pictures
+on:
+  push:
+    branches: [main]
+    paths: [records.json]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: pictures
+  cancel-in-progress: true
+jobs:
+  pictures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Wait for the wake to finish
+        if: github.event_name == 'push'
+        run: sleep 420
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet playwright pillow
+      - name: Draw the pictures
+        run: |
+          CHROME="$(command -v google-chrome || command -v chromium-browser || command -v chromium)" python3 .github/scripts/pictures.py
+      - name: Keep them
+        run: |
+          git config user.name "planet pictures"
+          git config user.email "pictures@users.noreply.github.com"
+          git add shots og.jpg
+          if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
+          git commit -m "Add the still pictures of new steps"
+          git pull --rebase origin main
+          git push origin HEAD:main
