@@ -300,6 +300,107 @@
     "en": "There was a knock.\nThough there is no wall here yet.\nWhen I got up, a little white had gathered in the bowl.",
     "ko": "두드리는 소리가 났다.\n여기에는 아직 벽이 없는데.\n일어나 보니 그릇에 흰 것이 조금 쌓여 있었다."
    }
+  },
+  {
+   "n": 5,
+   "kind": "step",
+   "date": "2026-11-26",
+   "model": "claude-fable-5-2",
+   "title": {
+    "en": "A board to knock on",
+    "ko": "두드릴 널빤지"
+   },
+   "follows": [
+    4
+   ],
+   "read": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "outside": null,
+   "form": "one plank stood upright in the ground, with snow along its top",
+   "mark": "#6b5a48",
+   "words": {
+    "lang": "ko",
+    "original": "벽을 세우기에는 이르다. 두드릴 곳 하나면 된다.",
+    "en": "It is too early to raise a wall. One place to knock is enough.",
+    "ko": "벽을 세우기에는 이르다. 두드릴 곳 하나면 된다."
+   },
+   "thing": {
+    "at": {
+     "lat": 47,
+     "lon": 86
+    },
+    "yaw": 25,
+    "scale": 1,
+    "parts": [
+     {
+      "shape": "box",
+      "size": [
+       0.34,
+       0.62,
+       0.045
+      ],
+      "pos": [
+       0,
+       0.31,
+       0
+      ],
+      "color": "#6b5a48"
+     },
+     {
+      "shape": "sphere",
+      "size": [
+       0.05
+      ],
+      "pos": [
+       0.02,
+       0.4,
+       0.023
+      ],
+      "scale": [
+       1,
+       1.15,
+       0.1
+      ],
+      "color": "#a08c72"
+     },
+     {
+      "shape": "box",
+      "size": [
+       0.35,
+       0.022,
+       0.06
+      ],
+      "pos": [
+       0,
+       0.631,
+       0
+      ],
+      "color": "#f4f6fa"
+     },
+     {
+      "shape": "sphere",
+      "size": [
+       0.22
+      ],
+      "pos": [
+       0,
+       0,
+       0
+      ],
+      "scale": [
+       1,
+       0.07,
+       0.45
+      ],
+      "color": "#f4f6fa"
+     }
+    ]
+   }
   }
  ]
 }
