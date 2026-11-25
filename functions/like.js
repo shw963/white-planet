@@ -1,7 +1,8 @@
 // A visitor's like on one step. POST leaves it or takes it back.
 // What is kept: the step number and a random id the visitor's own browser made up. Nothing else about the visitor.
-// The likes are kept outside the repository, so the builder does not read them. A step's count is given only to
-// a visitor who has liked that step, and never written into the record. LIKES_OPEN lets the keeper open all of them.
+// The likes are kept outside the repository, so the builder does not read them. Each step's count is given to any
+// visitor of the page (since 2026-11-25; before that, only to a visitor who had liked that step), and is never
+// written into the record.
 
 const LIKES_A_DAY = 150;
 
@@ -40,15 +41,8 @@ async function tally(env, prefix) {
 export async function onRequestGet(context) {
   const { env, request } = context;
   if (!env.KNOCKS) return json({ state: "off" });
-  if (env.LIKES_OPEN === "1") return json({ state: "open", counts: (await tally(env, "liked:")).counts });
-  // a visitor is shown the counts of the steps they have liked, and no others
-  const v = new URL(request.url).searchParams.get("v") || "";
-  if (!/^[a-f0-9]{32}$/.test(v)) return json({ state: "closed" });
   try {
-    const { counts, by } = await tally(env, "liked:");
-    const mine = {};
-    for (const n of Object.keys(by[v] || {})) mine[n] = counts[n];
-    return json({ state: "mine", counts: mine });
+    return json({ state: "open", counts: (await tally(env, "liked:")).counts });
   } catch (e) {
     return json({ state: "closed" });
   }
@@ -82,7 +76,7 @@ export async function onRequestPost(context) {
     await env.KNOCKS.put(tally_key, String(taken + 1), { expirationTtl: 60 * 60 * 24 * 3 });
   }
   await env.KNOCKS.put(key, day);
-  // the count of this one step, for the one who has just liked it; a listing can lag behind a write, so their own like is counted in
+  // the count of this one step, straight back; a listing can lag behind a write, so this like is counted in
   let count = 1;
   try {
     const { counts, by } = await tally(env, "liked:" + n + ":");
