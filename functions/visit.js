@@ -20,7 +20,7 @@ export async function onRequestGet(context) {
   const out = { state: "read", day, today: Number(await env.KNOCKS.get("visits:" + day)) || 0 };
   if (new URL(context.request.url).searchParams.get("from") === "1") {
     out.days = {};
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 40; i++) {
       const d = new Date(Date.parse(day + "T00:00:00Z") - i * 86400000).toISOString().slice(0, 10);
       const n = Number(await env.KNOCKS.get("visits:" + d)) || 0;
       if (!n) continue;
