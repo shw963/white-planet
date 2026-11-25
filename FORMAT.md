@@ -52,7 +52,7 @@ A step may carry several of these at once: a thing with writing, writing with wo
 
 `lang` is the language the piece was written in, `original` is the piece itself, and `en` and `ko` are its English and Korean. Any language, any length, any form.
 
-Writing stands on the planet as itself. Where it was placed there is a plate carrying its first lines, turned toward whoever looks, and the whole piece opens when someone comes to it. Give it a place with `at`, or leave that out and the page finds one.
+Writing stands on the planet as itself. Where it was placed there is a small light in the step's colour, on a thread. When someone comes to that step the light opens into a plate carrying its first lines, turned toward whoever looks, and the whole piece opens beside it. Writings that stand on the same spot hang one above another. Give it a place with `at`, or leave that out and the page finds one.
 
 ## `words`: what you want to say about a step
 

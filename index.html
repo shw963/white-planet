@@ -1277,7 +1277,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     things.forEach(function (g) { scene.remove(g); });
     things = []; pickable = []; lightCount = 0;
     edges = []; hiDots = [];
-    textSprites.forEach(function (en) { en.tex.dispose(); en.sprite.material.dispose(); });
+    textSprites.forEach(function (en) { en.tex.dispose(); en.sprite.material.dispose(); en.lampTex.dispose(); en.lamp.material.dispose(); });
     textSprites = [];
     arcs.count = 0; arcsHi.count = 0;
     el('tags').textContent = '';
@@ -1293,18 +1293,24 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       var cr = canvas.getBoundingClientRect(), hs = document.querySelectorAll('.hud.tl, .hud.tr, .hud.bottom .left, #steps, #map');
       for (i = 0; i < hs.length; i++) { var hr = hs[i].getBoundingClientRect(); if (hr.width > 0) { hudBoxes.push([hr.left - cr.left - 16, hr.top - cr.top - 4, hr.right - cr.left + 16, hr.bottom - cr.top + 22]); } }
     }
-    var chosen = focus >= 0 ? focus : selected, manyPlates = textSprites.length > 1;
+    var chosen = focus >= 0 ? focus : selected;
     for (i = 0; i < textSprites.length; i++) {
-      var ten = textSprites[i], want = !manyPlates || ten.step.n === chosen ? 1 : 0.5;
-      ten.k = ten.k === undefined ? want : ten.k + (want - ten.k) * 0.14;
-      if (ten.w && Math.abs((ten.shownK || 0) - ten.k) > 0.004) {
+      var ten = textSprites[i], want = ten.step.n === chosen ? 1 : 0;
+      ten.k = ten.k === undefined ? want : ten.k + (want - ten.k) * 0.16;
+      if (Math.abs(want - ten.k) < 0.003) { ten.k = want; }
+      if (ten.w && Math.abs(ten.shownK - ten.k) > 0.002) {
         ten.shownK = ten.k;
-        ten.sprite.scale.set(ten.w * ten.k, ten.h * ten.k, 1);
+        ten.sprite.scale.set(Math.max(0.0001, ten.w * ten.k), Math.max(0.0001, ten.h * ten.k), 1);
         ten.sprite.position.copy(ten.step.dir).multiplyScalar(ten.base + ten.h * ten.k / 2);
-        ten.sprite.material.opacity = 0.62 + 0.38 * (ten.k - 0.5) / 0.5;
+        ten.sprite.material.opacity = Math.min(1, ten.k * 1.5);
+        ten.step.topH = ten.top + 0.1 + ten.k * (ten.h + 0.16);
       }
+      var lit = ten.sprite.parent !== null && ten.sprite.userData.on !== false && ten.step.n <= (shownK >= 0 ? shownK : 1e9);
+      ten.sprite.visible = lit && ten.k > 0.02 && wholeMix < 0.6;
+      ten.lamp.visible = lit;
+      var ls = 0.36 * (1 + 1.8 * wholeMix);
+      if (ten.lamp.scale.x !== ls) { ten.lamp.scale.set(ls, ls, 1); }
     }
-    for (i = 0; i < textSprites.length; i++) { var tsp = textSprites[i].sprite; tsp.visible = tsp.userData.on !== false && tsp.parent !== null && wholeMix < 0.6 && (!tsp.userData.step || tsp.userData.step <= (shownK >= 0 ? shownK : 1e9)); }
     var plate = null;
     if (!plateC) { plateC = new THREE.Vector3(); plateR = new THREE.Vector3(); plateU = new THREE.Vector3(); }
     for (i = 0; i < textSprites.length; i++) {
@@ -1425,7 +1431,8 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     arcsHi.instanceMatrix.needsUpdate = true;
   }
   var worldAfter = {}, worldGoal = null;
-  /* A piece of writing is shown where it was placed, as a plate carrying its first lines, turned to whoever looks. */
+  /* A piece of writing is a small light where it was placed. For the step someone has come to, the light opens
+     into a dark plate carrying its first lines; the others stay lights, so many writings do not paper over the planet. */
   var textSprites = [];
   function paintWords(en) {
     var s = en.step, str = String(s.text[lang] || s.text.original || '').trim();
@@ -1458,17 +1465,15 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     lines.forEach(function (l, i) { x.fillText(l, PAD, PAD + i * LH); });
     en.tex.needsUpdate = true;
     var unit = 0.0035, h = en.canvas.height * unit;
-    en.w = en.canvas.width * unit; en.h = h; en.shownK = 0;
-    en.sprite.scale.set(en.w * (en.k || 1), h * (en.k || 1), 1);
-    en.sprite.position.copy(s.dir).multiplyScalar(en.base + h * (en.k || 1) / 2);
-    s.topH = en.top + h + 0.4;
+    en.w = en.canvas.width * unit; en.h = h; en.shownK = -1;
+    s.topH = en.top + 0.1;
   }
   function neutralMarker(s) {
     if (s.kind === 'founding') { return [{ shape: 'cylinder', size: [0.5, 0.5, 0.04], pos: [0, 0.02, 0], color: '#cfd4dc', sides: 28 }]; }
     if (s.kind === 'empty') { return [{ shape: 'cylinder', size: [0.16, 0.16, 0.02], pos: [0, 0.01, 0], color: '#c3c8d2', sides: 20 }]; }
     if (s.kind === 'door') { return [{ shape: 'torus', size: [0.42, 0.05, 180], pos: [0, 0, 0], color: '#aab0bc' }]; }
     if (s.piece) { return [{ shape: 'box', size: [0.62, 0.46, 0.05], pos: [0, 0.53, 0], color: '#f2f4f8' }, { shape: 'box', size: [0.05, 0.3, 0.05], pos: [0, 0.15, 0], color: '#aab0bc' }]; }
-    if (s.text) { return [{ shape: 'cylinder', size: [0.1, 0.15, 0.06], pos: [0, 0.03, 0], color: '#cfd4dc', sides: 20 }, { shape: 'cylinder', size: [0.014, 0.014, 1.12], pos: [0, 0.62, 0], color: '#aab0bc', sides: 8 }]; }
+    if (s.text) { var th = s.lampH || 0.62; return [{ shape: 'cylinder', size: [0.06, 0.09, 0.03], pos: [0, 0.015, 0], color: '#cfd4dc', sides: 18 }, { shape: 'cylinder', size: [0.006, 0.006, th], pos: [0, 0.03 + th / 2, 0], color: '#b4bac6', sides: 6 }]; }
     return [{ shape: 'box', size: [0.4, 0.56, 0.06], pos: [0, 0.3, 0], rot: [-10, 0, 0], color: '#eceff4' }];
   }
   function okAt(a) { return !!a && typeof a.lat === 'number' && typeof a.lon === 'number' && isFinite(a.lat) && isFinite(a.lon); }
@@ -1535,6 +1540,11 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       worldAfter[s.n] = JSON.parse(JSON.stringify(w));
       if (!s.dir) { return; }
       var own = s.thing && Array.isArray(s.thing.parts) && s.thing.parts.length;
+      if (s.text && typeof s.text === 'object' && s.kind !== 'founding') {
+        var beside = 0;
+        textSprites.forEach(function (o) { if (o.step.dir && o.step.dir.angleTo(s.dir) * R < 0.7) { beside++; } });
+        s.lampH = 0.62 + 0.36 * beside;
+      }
       var list = own ? s.thing.parts : neutralMarker(s);
       var g = new THREE.Group();
       var lift = own ? clamp(num(s.thing.height, 0), 0, 60) : 0;
@@ -1568,15 +1578,32 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       if (s.text && typeof s.text === 'object' && s.kind !== 'founding') {
         var cv = document.createElement('canvas'), tex = new THREE.CanvasTexture(cv);
         tex.encoding = THREE.sRGBEncoding; tex.minFilter = THREE.LinearFilter; tex.generateMipmaps = false;
-        var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+        var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false }));
         sp.userData.step = s.n;
-        var en = { step: s, canvas: cv, tex: tex, sprite: sp, top: s.topH, base: R + s.topH + (own ? 0.3 : 0.02) };
+        sp.renderOrder = 5;
+        /* the light: a bead in the step's own colour with a pale glow, so it shows on the white ground and on the sky */
+        var lc = document.createElement('canvas'), lx, lg;
+        lc.width = lc.height = 64;
+        lx = lc.getContext('2d');
+        lg = lx.createRadialGradient(32, 32, 6, 32, 32, 31);
+        lg.addColorStop(0, 'rgba(255,255,255,0.85)'); lg.addColorStop(0.45, 'rgba(255,255,255,0.28)'); lg.addColorStop(1, 'rgba(255,255,255,0)');
+        lx.fillStyle = lg; lx.fillRect(0, 0, 64, 64);
+        lx.beginPath(); lx.arc(32, 32, 9, 0, 6.2832); lx.fillStyle = inkOf(markColor(s)); lx.fill();
+        lx.lineWidth = 2; lx.strokeStyle = 'rgba(255,255,255,0.95)'; lx.stroke();
+        var ltex = new THREE.CanvasTexture(lc);
+        ltex.encoding = THREE.sRGBEncoding;
+        var lamp = new THREE.Sprite(new THREE.SpriteMaterial({ map: ltex, transparent: true, depthWrite: false }));
+        lamp.userData.step = s.n;
+        var lampAt = R + s.topH + (own ? 0.34 : 0.1);
+        lamp.position.copy(s.dir).multiplyScalar(lampAt);
+        lamp.scale.set(0.36, 0.36, 1);
+        var en = { step: s, canvas: cv, tex: tex, sprite: sp, lamp: lamp, lampTex: ltex, top: s.topH + (own ? 0.34 : 0.1) + 0.14, base: lampAt + 0.26 };
         paintWords(en);
         textSprites.push(en);
-        scene.add(sp);
-        things.push(sp);
-        pickable.push(sp);
-        s.sprite = sp;
+        scene.add(sp); scene.add(lamp);
+        things.push(sp); things.push(lamp);
+        pickable.push(sp); pickable.push(lamp);
+        s.sprite = sp; s.lamp = lamp;
       }
     }
     var pairs = [], total = 0;
@@ -1635,7 +1662,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       if (s.group) {
         if (vis && !s.group.visible && animate) { s.group.userData.age = 0; s.group.scale.setScalar(0.001); }
         s.group.visible = vis;
-        if (s.sprite) { s.sprite.userData.on = vis; s.sprite.visible = vis && wholeMix < 0.6; }
+        if (s.sprite) { s.sprite.userData.on = vis; }
       }
       if (vis) { last = s; }
     });
