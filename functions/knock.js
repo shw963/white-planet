@@ -1,4 +1,6 @@
 // A visitor's knock. GET says how things stand; POST knocks.
+// When enough knocks are already waiting from earlier days and the builder has not been woken today, the first
+// look of the day (a visitor opening the page, or the keeper's daily look) wakes it: that is the one thing GET does.
 //
 // Since 2026-11-25 knocks add up. The builder says how many knocks it takes to wake it (`knocks` in a step, 1 to 10;
 // one if it never said). Knocks from different visitors are kept across days until there are that many, and it is
@@ -118,8 +120,29 @@ async function fire(env) {
   }
 }
 
+// Wake it now. `again` is a second try after a wake that came to nothing: it takes nothing from what is kept.
+// Two looks at the same moment from far apart could both get here before either sees the other's mark; with the
+// few visitors this place has, that is left as it is.
+async function wake(env, seen, pool, came, mine, again) {
+  const today = seoulDay(), at = new Date().toISOString();
+  const before = again ? await env.KNOCKS.get("woke:" + today) : null;
+  const left = again ? pool : pool - seen.need;
+  await env.KNOCKS.put("woke:" + today, at + "|" + seen.steps + "|" + ((seen.tries || 0) + 1), { expirationTtl: THREE_DAYS });
+  if (!again) await env.KNOCKS.put("pool", String(left));
+  if (!(await fire(env))) {
+    // it could not be woken: the knocks stay kept, and the next knock or look tries again
+    if (before) await env.KNOCKS.put("woke:" + today, before, { expirationTtl: THREE_DAYS });
+    else await env.KNOCKS.delete("woke:" + today);
+    if (!again) await env.KNOCKS.put("pool", String(pool));
+    return json({ state: "failed", need: seen.need, pool, today: came, mine }, 502);
+  }
+  return json({ state: "waking", at, need: seen.need, pool: left, today: came, mine, full: left >= seen.need * KEPT_WAKES || came >= KNOCKS_A_DAY });
+}
+
 export async function onRequestGet(context) {
-  return json(await look(context, new URL(context.request.url).searchParams.get("v")));
+  const seen = await look(context, new URL(context.request.url).searchParams.get("v"));
+  if (seen.state === "open" && seen.due) return wake(context.env, seen, seen.pool, seen.today, seen.mine, false);
+  return json(seen);
 }
 
 export async function onRequestPost(context) {
@@ -132,15 +155,14 @@ export async function onRequestPost(context) {
   } catch (e) {
     body = {};
   }
-  // collect: no new knock, only "wake it if enough knocks are already waiting"
-  const collect = body.collect === true, v = body.v;
-  if (!collect && !okVisitor(v)) return json({ state: "refused" }, 400);
+  const v = body.v;
+  if (!okVisitor(v)) return json({ state: "refused" }, 400);
   const seen = await look(context, v);
   if (seen.state === "off" || seen.state === "resting") return json(seen);
-  const today = seoulDay(), at = new Date().toISOString();
+  const today = seoulDay();
   let pool = seen.pool, came = seen.today, mine = seen.mine;
 
-  if (!collect && !mine && !seen.full) {
+  if (!mine && !seen.full) {
     // this visitor's knock for today
     pool += 1; came += 1; mine = true;
     await Promise.all([
@@ -149,24 +171,10 @@ export async function onRequestPost(context) {
       env.KNOCKS.put("pool", String(pool)),
     ]);
   }
-  const now = { ...seen, pool, today: came, mine, full: pool >= seen.need * KEPT_WAKES || came >= KNOCKS_A_DAY };
+  // a wake that came to nothing may be tried again by any knock
+  const again = seen.state === "missed";
+  if (again || (seen.state === "open" && pool >= seen.need)) return wake(env, seen, pool, came, mine, again);
+  const now = { ...seen, pool, today: came, mine, full: pool >= seen.need * KEPT_WAKES || came >= KNOCKS_A_DAY, kept: mine && !seen.mine };
   delete now.due;
-
-  // a wake that came to nothing may be tried again by any knock; it takes nothing more from what is kept
-  const again = seen.state === "missed" && !collect;
-  const wake = again || (seen.state === "open" && pool >= seen.need);
-  if (!wake) return json({ ...now, kept: !collect && mine && !seen.mine });
-
-  const before = again ? await env.KNOCKS.get("woke:" + today) : null;
-  const left = again ? pool : pool - seen.need;
-  await env.KNOCKS.put("woke:" + today, at + "|" + seen.steps + "|" + ((seen.tries || 0) + 1), { expirationTtl: THREE_DAYS });
-  if (!again) await env.KNOCKS.put("pool", String(left));
-  if (!(await fire(env))) {
-    // it could not be woken: the knocks stay kept, and the next knock or visit tries again
-    if (before) await env.KNOCKS.put("woke:" + today, before, { expirationTtl: THREE_DAYS });
-    else await env.KNOCKS.delete("woke:" + today);
-    if (!again) await env.KNOCKS.put("pool", String(pool));
-    return json({ state: "failed", need: seen.need, pool, today: came, mine }, 502);
-  }
-  return json({ state: "waking", at, need: seen.need, pool: left, today: came, mine, full: left >= seen.need * KEPT_WAKES || came >= KNOCKS_A_DAY });
+  return json(now);
 }

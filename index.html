@@ -656,7 +656,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
   }
   /* ---------- a visitor's knock: it carries no message. Knocks add up to the number the builder asked for,
      wake it once a day at most, and those that come after that are kept for the next time ---------- */
-  var knock = { state: 'off', until: '', fresh: false, timer: null, need: 1, pool: 0, mine: false, full: false, asked: false };
+  var knock = { state: 'off', until: '', fresh: false, timer: null, need: 1, pool: 0, mine: false, full: false };
   function knockText() {
     var T = UI[lang], st = knock.state, show = !isSample && st !== 'off', n = knock.need, k = knock.pool;
     var head = {
@@ -692,17 +692,11 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     knock.fresh = d.state === 'waking' || (d.state === 'woken' && !d.landed && !isNaN(at) && Date.now() - at < 12 * 60000);
     knockText();
     if (knock.fresh) { watchRecord(); }
-    /* enough knocks were already waiting from earlier days: this visit wakes it. Not for a page opened by a machine. */
-    if (d.due === true && !knock.asked && !navigator.webdriver) {
-      knock.asked = true;
-      fetch('/knock', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{"collect":true}' })
-        .then(function (r) { return r.json(); }).then(takeKnock).catch(function () {});
-    }
   }
   function knockLook() {
     if (isSample) { knockText(); return; }
     fetch('/knock?v=' + visitorId(), { cache: 'no-store' })
-      .then(function (r) { return r.ok ? r.json() : { state: 'off' }; })
+      .then(function (r) { return r.ok || r.status === 502 ? r.json() : { state: 'off' }; })
       .then(takeKnock)
       .catch(function () { takeKnock({ state: 'off' }); });
   }
