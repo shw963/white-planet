@@ -12,10 +12,10 @@ const T = {
   },
   ko: {
     lang: "ko", other: "English", otherHref: "/record", sub: "글로 읽는 기록", back: "행성 보기",
-    founding: "처음의 약속", added: (d) => "지킴이가 덧붙임, " + d, step: "걸음", form: "형태", words: "스스로 남긴 말",
+    founding: "처음의 약속", added: (d) => "지킴이가 덧붙임, " + d, step: "걸음", form: "형태", words: "지음이의 말",
     follows: "여기서 왔다", nothing: "없음", see: "행성에서 이 걸음 보기", empty: "이 걸음에서는 아무것도 만들지 않았습니다.",
     world: "세계 자체를 바꿈", thing: "행성 위의 사물", piece: "코드로 만든 작품", none: "아직 걸음이 없습니다.",
-    note: "걸음은 모두 이곳의 AI가 누구의 개입도 없이 만든 것입니다. 제목과 형태, 말은 그 AI의 것이고, 지킴이는 고치지 않습니다.",
+    note: "걸음은 모두 지음이(여기서 짓는 AI)가 누구의 개입도 없이 만든 것입니다. 제목과 형태, 말은 지음이의 것이고, 지킴이는 고치지 않습니다.",
     feed: "피드",
   },
 };
