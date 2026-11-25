@@ -6,6 +6,11 @@ on:
     branches: [main]
     paths: [records.json]
   workflow_dispatch:
+    inputs:
+      redraw:
+        description: Draw every step again
+        type: boolean
+        default: false
 permissions:
   contents: write
 concurrency:
@@ -28,7 +33,7 @@ jobs:
       - run: pip install --quiet playwright pillow
       - name: Draw the pictures
         run: |
-          CHROME="$(command -v google-chrome || command -v chromium-browser || command -v chromium)" python3 .github/scripts/pictures.py
+          CHROME="$(command -v google-chrome || command -v chromium-browser || command -v chromium)" python3 .github/scripts/pictures.py ${{ inputs.redraw && '--all' || '' }}
       - name: Keep them
         run: |
           git config user.name "planet pictures"
