@@ -1285,7 +1285,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
   }
   /* small numbered flags over the things that are in view */
   var tagEls = {}, tagV = has3d ? new THREE.Vector3() : null;
-  var hudBoxes = null, hudAge = 0, plateC = null, plateR, plateU;
+  var hudBoxes = null, hudAge = 0, plateC = null, plateR, plateU, hoverN = -1, hoverAt = 0;
   function updateTags() {
     var W = canvas.clientWidth, H = canvas.clientHeight, shown = [], live = {}, i, s, k;
     if (!hudBoxes || ++hudAge > 40) {
@@ -1323,9 +1323,16 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       tmpN.copy(plateC).add(plateR).sub(plateU).project(camera);
       if (tmpP.z < 1 && tmpN.z < 1) { plate = [(tmpP.x * 0.5 + 0.5) * W, (-tmpP.y * 0.5 + 0.5) * H, (tmpN.x * 0.5 + 0.5) * W, (-tmpN.y * 0.5 + 0.5) * H, pt.step.n]; }
     }
+    /* A flag stands only on the chosen step, on the steps it came from and the steps it led to, and on a thing
+       the pointer rests on. The rest carry none, so that the flags do not cover the planet as the steps gather. */
+    var rel = {}, cs = byN[chosen];
+    rel[chosen] = 1; rel[selected] = 1;
+    if (cs) { cs.par.forEach(function (q) { rel[q] = 1; }); cs.kids.forEach(function (q) { rel[q] = 1; }); }
+    if (hoverN >= 0) { rel[hoverN] = 1; }
     for (i = 0; i < data.steps.length; i++) {
       s = data.steps[i];
       if (!s.group || !s.group.visible) { continue; }
+      if (!rel[s.n]) { continue; }
       if (wholeMix > 0.6 && s.n !== selected) { continue; }
       tagV.copy(s.dir).multiplyScalar(R + s.topH + 0.1);
       /* skip a flag whose line of sight passes through the planet */
@@ -1895,10 +1902,25 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     canvas.addEventListener('pointerdown', function (e) {
       down = { lx: e.clientX, ly: e.clientY, moved: 0 };
       canvas.setPointerCapture(e.pointerId);
+      canvas.style.cursor = '';
       canvas.classList.add('dragging');
     });
     canvas.addEventListener('pointermove', function (e) {
-      if (!down) { return; }
+      if (!down) {
+        /* a mouse resting on a thing shows which step it is */
+        if (e.pointerType !== 'mouse' || replay) { return; }
+        var hnow = performance.now();
+        if (hnow - hoverAt < 70) { return; }
+        hoverAt = hnow;
+        var hr = canvas.getBoundingClientRect();
+        ndc.set(((e.clientX - hr.left) / hr.width) * 2 - 1, -((e.clientY - hr.top) / hr.height) * 2 + 1);
+        ray.setFromCamera(ndc, camera);
+        ray.camera = camera;
+        var over = ray.intersectObjects(pickable, false).filter(function (h) { return h.object.visible && h.object.parent && h.object.parent.visible; });
+        hoverN = over.length ? over[0].object.userData.step : -1;
+        canvas.style.cursor = hoverN >= 0 ? 'pointer' : '';
+        return;
+      }
       var dx = e.clientX - down.lx, dy = e.clientY - down.ly;
       down.lx = e.clientX; down.ly = e.clientY;
       down.moved += Math.abs(dx) + Math.abs(dy);
@@ -1928,6 +1950,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       down = null;
     });
     canvas.addEventListener('pointercancel', function () { down = null; canvas.classList.remove('dragging'); });
+    canvas.addEventListener('pointerleave', function () { hoverN = -1; canvas.style.cursor = ''; });
   }
 
   var last = null;
