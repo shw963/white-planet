@@ -16,10 +16,8 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <meta name="theme-color" content="#14161b">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="/fonts/fonts.css" rel="stylesheet">
 <style>
 :root {
   /* layout: one full-width stage with its words set straight on the picture; the open record and the notes sit below on slate */
@@ -86,14 +84,16 @@ h1 { white-space: nowrap; margin: 0 0 12px; font: 500 17px/1.25 var(--font-mono)
 .sel .k { color: var(--hud-muted); text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; }
 .sel:hover .t { text-decoration: underline; text-underline-offset: 3px; }
 .hud.bottom { left: 32px; right: 32px; bottom: 24px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
-.bottom .left { flex: 0 1 26ch; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.bottom .left { flex: 0 0 26ch; max-width: 42%; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
 .acts { display: flex; flex-wrap: wrap; gap: 8px 20px; }
 .act { text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; border-bottom: 1px solid currentColor; padding-bottom: 2px; }
 .act[hidden] { display: none; }
 .act:disabled { opacity: 0.5; cursor: default; }
 .knock-note { color: var(--hud); }
-.steps { flex: 1 1 auto; min-width: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 14px; max-height: 4.8em; overflow: auto; }
-.steps button { display: inline-flex; align-items: center; padding: 2px 0; color: var(--hud-muted); font-variant-numeric: tabular-nums; }
+.steps { flex: 1 1 0; min-width: 0; display: flex; flex-wrap: nowrap; gap: 0 14px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -webkit-overflow-scrolling: touch; -webkit-mask-image: linear-gradient(to right, transparent, #000 22px, #000 calc(100% - 22px), transparent); mask-image: linear-gradient(to right, transparent, #000 22px, #000 calc(100% - 22px), transparent); }
+.steps::-webkit-scrollbar { display: none; }
+.steps::before, .steps::after { content: ''; flex: 1 0 20px; }
+.steps button { flex: none; display: inline-flex; align-items: center; padding: 2px 0; color: var(--hud-muted); font-variant-numeric: tabular-nums; }
 .steps button:hover { color: var(--hud); }
 .steps button[aria-current="true"] { color: var(--hud); box-shadow: 0 1px 0 var(--hud); }
 .steps button.later { opacity: 0.3; }
@@ -165,7 +165,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
   .hlike { margin-top: 0; }
   .hnote { max-width: 17ch; }
   .hud.bottom { left: 16px; right: 16px; bottom: 14px; flex-wrap: wrap; gap: 10px 16px; }
-  .steps { order: 3; flex-basis: 100%; justify-content: flex-start; max-height: 3.3em; }
+  .steps { order: 3; flex-basis: 100%; }
   .map { width: 96px; }
   .map.big { width: min(280px, 80vw); }
   .work { position: static; width: auto; padding: 20px 16px; background: var(--slate); border-left: 0; border-bottom: 1px solid var(--line); }
@@ -255,7 +255,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     </section>
   </div>
 </main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="/vendor/three.min.js"></script>
 <script>
 (function () {
   var canvas = document.getElementById('scene');
@@ -617,6 +617,9 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       b.addEventListener('click', function () { if (!replay) { select(s.n, true); } });
       box.appendChild(b);
     });
+    /* the strip is one line; slide it so that the chosen step is in the middle */
+    var curB = box.querySelector('[aria-current="true"]');
+    if (curB && box.scrollWidth > box.clientWidth) { box.scrollLeft += curB.getBoundingClientRect().left + curB.offsetWidth / 2 - (box.getBoundingClientRect().left + box.clientWidth / 2); }
     var rb = el('replay');
     rb.hidden = !has3d || data.steps.length < 2;
     rb.textContent = replay ? T.stop : T.replay;
@@ -1157,6 +1160,17 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       var cr = canvas.getBoundingClientRect(), hs = document.querySelectorAll('.hud.tl, .hud.tr, .hud.bottom .left, #steps, #map');
       for (i = 0; i < hs.length; i++) { var hr = hs[i].getBoundingClientRect(); if (hr.width > 0) { hudBoxes.push([hr.left - cr.left - 16, hr.top - cr.top - 4, hr.right - cr.left + 16, hr.bottom - cr.top + 22]); } }
     }
+    var chosen = focus >= 0 ? focus : selected, manyPlates = textSprites.length > 1;
+    for (i = 0; i < textSprites.length; i++) {
+      var ten = textSprites[i], want = !manyPlates || ten.step.n === chosen ? 1 : 0.5;
+      ten.k = ten.k === undefined ? want : ten.k + (want - ten.k) * 0.14;
+      if (ten.w && Math.abs((ten.shownK || 0) - ten.k) > 0.004) {
+        ten.shownK = ten.k;
+        ten.sprite.scale.set(ten.w * ten.k, ten.h * ten.k, 1);
+        ten.sprite.position.copy(ten.step.dir).multiplyScalar(ten.base + ten.h * ten.k / 2);
+        ten.sprite.material.opacity = 0.62 + 0.38 * (ten.k - 0.5) / 0.5;
+      }
+    }
     for (i = 0; i < textSprites.length; i++) { var tsp = textSprites[i].sprite; tsp.visible = tsp.userData.on !== false && tsp.parent !== null && wholeMix < 0.6 && (!tsp.userData.step || tsp.userData.step <= (shownK >= 0 ? shownK : 1e9)); }
     for (i = 0; i < data.steps.length; i++) {
       s = data.steps[i];
@@ -1170,6 +1184,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       tagV.project(camera);
       if (Math.abs(tagV.x) > 0.97 || tagV.y > 0.86 || tagV.y < -0.9) { continue; }
       var tx = (tagV.x * 0.5 + 0.5) * W, ty = (-tagV.y * 0.5 + 0.5) * H, under = false;
+      if (!isFinite(tx) || !isFinite(ty)) { continue; }
       for (k = 0; k < hudBoxes.length; k++) { if (tx > hudBoxes[k][0] && tx < hudBoxes[k][2] && ty > hudBoxes[k][1] && ty < hudBoxes[k][3]) { under = true; break; } }
       if (under) { continue; }
       shown.push({ s: s, x: tx, y: ty, d: d });
@@ -1296,8 +1311,9 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     lines.forEach(function (l, i) { x.fillText(l, PAD, PAD + i * LH); });
     en.tex.needsUpdate = true;
     var unit = 0.0035, h = en.canvas.height * unit;
-    en.sprite.scale.set(en.canvas.width * unit, h, 1);
-    en.sprite.position.copy(s.dir).multiplyScalar(en.base + h / 2);
+    en.w = en.canvas.width * unit; en.h = h; en.shownK = 0;
+    en.sprite.scale.set(en.w * (en.k || 1), h * (en.k || 1), 1);
+    en.sprite.position.copy(s.dir).multiplyScalar(en.base + h * (en.k || 1) / 2);
     s.topH = en.top + h + 0.4;
   }
   function neutralMarker(s) {
@@ -1308,13 +1324,14 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     if (s.text) { return [{ shape: 'cylinder', size: [0.1, 0.15, 0.06], pos: [0, 0.03, 0], color: '#cfd4dc', sides: 20 }, { shape: 'cylinder', size: [0.014, 0.014, 1.12], pos: [0, 0.62, 0], color: '#aab0bc', sides: 8 }]; }
     return [{ shape: 'box', size: [0.4, 0.56, 0.06], pos: [0, 0.3, 0], rot: [-10, 0, 0], color: '#eceff4' }];
   }
+  function okAt(a) { return !!a && typeof a.lat === 'number' && typeof a.lon === 'number' && isFinite(a.lat) && isFinite(a.lon); }
   function autoPlace() {
     var c = dirOf(data.start || { lat: 62, lon: 60 }, new V()), e = new V(0, 1, 0);
     if (Math.abs(c.y) > 0.95) { e.set(1, 0, 0); }
     var u = new V().crossVectors(e, c).normalize(), v = new V().crossVectors(c, u).normalize();
     data.steps.forEach(function (s) {
       s.autoAt = null;
-      if ((s.thing && s.thing.at) || s.at) { return; }
+      if (okAt((s.thing && s.thing.at) || s.at)) { return; }
       var a = s.n * 2.39996, d = (1.5 + 0.6 * Math.sqrt(s.n)) / R;
       var t = u.clone().multiplyScalar(Math.cos(a)).addScaledVector(v, Math.sin(a));
       var q = c.clone().multiplyScalar(Math.cos(d)).addScaledVector(t, Math.sin(d)).normalize();
@@ -1327,7 +1344,21 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     var w = JSON.parse(JSON.stringify(DEFAULT_WORLD));
     worldAfter = {};
     data.steps.forEach(function (s) {
+      var held = things.length, heldPick = pickable.length, heldText = textSprites.length;
+      try { buildStep(s); }
+      catch (e) {
+        /* a step that cannot be drawn is left out of the scene and kept in the record; the rest of the planet stands */
+        while (things.length > held) { var gone = things.pop(); if (gone.parent) { gone.parent.remove(gone); } }
+        pickable.length = heldPick; textSprites.length = heldText;
+        s.group = null; s.sprite = null; s.broken = true;
+        worldAfter[s.n] = JSON.parse(JSON.stringify(w));
+        if (window.console) { console.warn('step ' + s.n + ' could not be drawn', e); }
+      }
+    });
+    function buildStep(s) {
       var at = (s.thing && s.thing.at) || s.at || s.autoAt;
+      /* a place that is not a pair of numbers is no place: the page finds one */
+      if (!okAt(at)) { at = s.autoAt || null; }
       s.dir = at ? dirOf(at, new V()) : null;
       s.group = null;
       if (s.world) {
@@ -1400,7 +1431,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
         pickable.push(sp);
         s.sprite = sp;
       }
-    });
+    }
     var pairs = [], total = 0;
     data.steps.forEach(function (s) {
       if (!s.dir) { return; }
@@ -1468,7 +1499,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     if (!has3d || data.steps.length < 2) { return; }
     closeWork();
     var order = data.steps.map(function (s) { return s.n; });
-    replay = { order: order, i: 0, wait: 1.2, gap: Math.min(2.6, Math.max(0.8, 30 / order.length)) };
+    replay = { order: order, i: 0, wait: 1.2, gap: Math.min(2.6, Math.max(0.22, 30 / order.length)) };
     showUpTo(order[0], false);
     select(order[0], false);
   }

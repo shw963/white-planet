@@ -19,7 +19,6 @@ from playwright.async_api import async_playwright
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ARGS = ["--no-sandbox", "--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"]
 CHROME = os.environ.get("CHROME", "/usr/bin/google-chrome")
-THREE_LOCAL = os.environ.get("THREE_LOCAL", "")
 
 
 def serve():
@@ -33,15 +32,28 @@ def serve():
     return httpd.server_address[1]
 
 
+TROUBLE = []
+
+
+def watch(page, what):
+    page.on("pageerror", lambda e: TROUBLE.append("%s: %s" % (what, e)))
+    page.on("console", lambda m: TROUBLE.append("%s: %s" % (what, m.text)) if "could not be drawn" in m.text else None)
+
+
+async def look(browser, port):
+    """Open the page as a visitor would and note anything that goes wrong."""
+    page = await browser.new_page(viewport={"width": 1200, "height": 800})
+    watch(page, "the page")
+    await page.goto("http://127.0.0.1:%d/" % port)
+    await page.wait_for_timeout(6000)
+    shown = await page.locator("#steps button").count()
+    await page.close()
+    return shown
+
+
 async def shoot(browser, port, n):
     page = await browser.new_page(viewport={"width": 1200, "height": 800})
-    if THREE_LOCAL:
-        body = open(THREE_LOCAL, "rb").read()
-
-        async def lib(route):
-            await route.fulfill(status=200, content_type="application/javascript", body=body)
-
-        await page.route("**/three.min.js", lib)
+    watch(page, "step %d" % n)
     await page.goto("http://127.0.0.1:%d/?shot=%d&lang=en" % (port, n))
     await page.wait_for_function("document.title === 'shot %d' || document.title === 'shot failed'" % n, timeout=240000)
     if await page.title() != "shot %d" % n:
@@ -65,6 +77,9 @@ async def main():
     made = []
     async with async_playwright() as p:
         browser = await p.chromium.launch(executable_path=CHROME, args=ARGS)
+        shown = await look(browser, port)
+        if shown != len(steps) + 1:
+            TROUBLE.append("the page shows %d steps, the record has %d" % (shown - 1, len(steps)))
         for n in want:
             jpg = await shoot(browser, port, n)
             open(os.path.join(ROOT, "shots", "%d.jpg" % n), "wb").write(jpg)
@@ -81,6 +96,10 @@ async def main():
         im.crop((0, top, w, top + cut)).resize((1200, 630), Image.LANCZOS).save(out, "JPEG", quality=90)
         open(os.path.join(ROOT, "og.jpg"), "wb").write(out.getvalue())
     print("made:", made or "nothing new")
+    if TROUBLE:
+        # the pictures that could be made are kept; the run is marked as failed so that the keeper is told
+        open(os.path.join(ROOT, ".trouble"), "w", encoding="utf-8").write("\n".join(TROUBLE) + "\n")
+        print("TROUBLE:\n" + "\n".join(TROUBLE))
 
 
 if __name__ == "__main__":

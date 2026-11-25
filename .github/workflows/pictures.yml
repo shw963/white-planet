@@ -39,7 +39,11 @@ jobs:
           git config user.name "planet pictures"
           git config user.email "pictures@users.noreply.github.com"
           git add shots og.jpg
-          if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
-          git commit -m "Add the still pictures of new steps"
-          git pull --rebase origin main
-          git push origin HEAD:main
+          if git diff --cached --quiet; then echo "nothing new"; else
+            git commit -m "Add the still pictures of new steps"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Say so if the page had trouble
+        run: |
+          if [ -f .trouble ]; then cat .trouble; exit 1; fi
