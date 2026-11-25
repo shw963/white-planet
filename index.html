@@ -99,12 +99,14 @@ h1 { white-space: nowrap; margin: 0 0 12px; font: 500 17px/1.25 var(--font-mono)
 .steps button[aria-current="true"] { color: var(--hud); box-shadow: 0 1px 0 var(--hud); }
 .steps button.later { opacity: 0.3; }
 .dot { display: inline-block; flex: none; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; border: 1px solid rgba(244, 246, 250, 0.7); }
-.map { flex: 0 0 auto; width: 150px; }
+.map { flex: none; width: 150px; }
 .map[hidden] { display: none; }
 .map.big { width: min(340px, 44vw); }
 .map .cap { display: block; width: 100%; text-align: right; color: var(--hud-muted); text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; }
 .map .cap:hover { color: var(--hud); }
-.map svg { display: block; width: 100%; height: auto; aspect-ratio: 1; }
+.map svg { display: block; width: 150px; height: 150px; }
+.map.big svg { width: min(340px, 44vw); height: min(340px, 44vw); }
+.map-veil { display: none; }
 .map .node { cursor: pointer; }
 .map text { font-family: var(--font-mono); font-size: 7px; fill: rgba(244, 246, 250, 0.8); display: none; pointer-events: none; font-variant-numeric: tabular-nums; }
 .map.big text { display: inline; }
@@ -159,7 +161,9 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
 @media (max-width: 860px) { .record, .about { grid-template-columns: 1fr; } .tipline { grid-column: 1; } }
 @media (max-width: 700px) {
   .stage { height: 72vh; min-height: 420px; }
-  .hud.tl { left: 16px; top: 16px; max-width: 26ch; }
+  .hud.tl { left: 16px; top: 16px; max-width: 30ch; }
+  #now { white-space: nowrap; }
+  .hud.tl .sub { word-break: keep-all; }
   h1 { white-space: normal; font-size: 15px; }
   .hud.tr { right: 16px; top: 16px; }
   .sel, .hint-short { display: none; }
@@ -168,7 +172,13 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
   .hud.bottom { left: 16px; right: 16px; bottom: 14px; flex-wrap: wrap; gap: 10px 16px; }
   .steps { order: 3; flex-basis: 100%; }
   .map { width: 96px; }
-  .map.big { width: min(280px, 80vw); }
+  .map svg { width: 96px; height: 96px; }
+  /* On a phone the opened map is a sheet of its own: it does not push the buttons up or sit on the body. */
+  .map.big { position: absolute; left: 50%; bottom: 38px; transform: translateX(-50%); width: auto; padding: 10px 12px 12px; background: rgba(18, 20, 26, 0.94); border: 1px solid rgba(244, 246, 250, 0.22); }
+  .map.big svg { width: min(280px, 76vw, 36vh); height: min(280px, 76vw, 36vh); }
+  .map.big .cap { color: var(--hud); padding-bottom: 6px; }
+  .map-open .map-veil { display: block; position: absolute; inset: 0; z-index: 3; background: rgba(16, 18, 23, 0.6); }
+  .map-open .bottom .left { visibility: hidden; }
   .work { position: static; width: auto; padding: 20px 16px; background: var(--slate); border-left: 0; border-bottom: 1px solid var(--line); }
   .below { padding: 40px 16px 64px; gap: 48px; }
 }
@@ -181,6 +191,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       <canvas id="scene" role="img" aria-label="A small pale planet seen from just above its surface, with a body made of small dark marks on it."></canvas>
       <div class="grain" id="grain" aria-hidden="true"></div>
       <div class="tags" id="tags" aria-hidden="true"></div>
+      <div class="map-veil" id="map-veil"></div>
       <header class="hud tl">
         <h1 id="title">Inverted Truman Show</h1>
         <p class="sub mark" id="sub">Starting from a white planet, one thing per step</p>
@@ -296,7 +307,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       toText: 'Read it as plain text', keeps: 'What is kept: no cookies. Your browser keeps a random number, your likes and the day of your last visit. The site keeps that number for three days so that a visitor is counted once a day, and with each like the step and that number. For each day it keeps how many visitors came and the names of the sites they came from. Cloudflare, which hosts the site, also counts page views without cookies. Nothing else about you is kept here.',
       toSample: 'See it with sample records', toGrown: 'See the body after 100 steps', toReal: 'Back to the real record',
       nothingYet: 'Nothing has been placed yet.',
-      from: 'Came from', to: 'Led to', map: 'All steps',
+      from: 'Came from', to: 'Led to', map: 'All steps', mapClose: 'Close the map',
       mapAria: 'A map of every step and of the steps each one came from.',
       hintMap: 'The small map shows every step and what it came from.',
       hintShort: 'Drag to look around. Click a thing to open what was made there.', recordLabel: 'Record',
@@ -350,7 +361,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       toText: '글자로 읽기', keeps: '남기는 것: 쿠키는 쓰지 않습니다. 브라우저에는 무작위 번호 하나와 누른 좋아요, 마지막 방문 날짜가 남습니다. 사이트에는 방문자를 하루 한 번만 세려고 그 번호가 사흘 동안 남고, 좋아요마다 걸음 번호와 그 번호가 남습니다. 날짜별로는 방문자 수와 들어온 사이트 이름만 쌓입니다. 사이트를 호스팅하는 Cloudflare도 쿠키 없이 페이지 조회 수를 셉니다. 그 밖에 이곳이 방문자에 대해 남기는 것은 없습니다.',
       toSample: '견본 기록으로 보기', toGrown: '백 걸음 뒤의 몸 보기', toReal: '실제 기록으로 돌아가기',
       nothingYet: '아직 아무것도 놓이지 않았습니다.',
-      from: '여기서 왔다', to: '여기로 이어졌다', map: '전체 걸음',
+      from: '여기서 왔다', to: '여기로 이어졌다', map: '전체 걸음', mapClose: '지도 닫기',
       mapAria: '모든 걸음과, 각 걸음이 어디서 왔는지를 보여주는 지도.',
       hintMap: '작은 지도는 모든 걸음과 그 걸음이 어디서 왔는지를 보여줍니다.',
       hintShort: '끌어서 둘러보세요. 사물을 누르면 거기서 만든 것이 열립니다.', recordLabel: '기록',
@@ -525,7 +536,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     var box = el('map'), svg = el('map-svg'), T = UI[lang];
     box.hidden = data.steps.length < 2;
     if (box.hidden) { return; }
-    el('map-cap').textContent = T.map;
+    el('map-cap').textContent = box.classList.contains('big') ? T.mapClose : T.map;
     svg.setAttribute('aria-label', T.mapAria);
     svg.textContent = '';
     var list = data.steps.filter(function (s) { return s.n <= shownK; });
@@ -559,15 +570,22 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
         tx.textContent = String(s.n);
         g.appendChild(tx);
       }
-      g.addEventListener('click', function () { if (!replay) { select(s.n, true); } });
+      g.addEventListener('click', function () { if (!replay) { if (mapSheet()) { openMap(false); } select(s.n, true); } });
       svg.appendChild(g);
     });
   }
   el('sel').addEventListener('click', function () { if (!replay && stepByN(selected)) { select(selected, true); } });
-  el('map-cap').addEventListener('click', function () {
-    var big = el('map').classList.toggle('big');
-    this.setAttribute('aria-expanded', big ? 'true' : 'false');
-  });
+  /* The map opened. On a wide screen it grows in its corner; on a phone it is a sheet over a dimmed stage. */
+  function openMap(big) {
+    el('map').classList.toggle('big', big);
+    document.querySelector('.stage').classList.toggle('map-open', big);
+    el('map-cap').setAttribute('aria-expanded', big ? 'true' : 'false');
+    el('map-cap').textContent = big ? UI[lang].mapClose : UI[lang].map;
+    hudBoxes = null;
+  }
+  function mapSheet() { return el('map').classList.contains('big') && getComputedStyle(el('map-veil')).display !== 'none'; }
+  el('map-cap').addEventListener('click', function () { openMap(!el('map').classList.contains('big')); });
+  el('map-veil').addEventListener('click', function () { openMap(false); });
 
   function renderFrame() {
     var T = UI[lang];
@@ -1153,7 +1171,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
   }
   /* small numbered flags over the things that are in view */
   var tagEls = {}, tagV = has3d ? new THREE.Vector3() : null;
-  var hudBoxes = null, hudAge = 0;
+  var hudBoxes = null, hudAge = 0, plateC = null, plateR, plateU;
   function updateTags() {
     var W = canvas.clientWidth, H = canvas.clientHeight, shown = [], live = {}, i, s, k;
     if (!hudBoxes || ++hudAge > 40) {
@@ -1173,6 +1191,18 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       }
     }
     for (i = 0; i < textSprites.length; i++) { var tsp = textSprites[i].sprite; tsp.visible = tsp.userData.on !== false && tsp.parent !== null && wholeMix < 0.6 && (!tsp.userData.step || tsp.userData.step <= (shownK >= 0 ? shownK : 1e9)); }
+    var plate = null;
+    if (!plateC) { plateC = new THREE.Vector3(); plateR = new THREE.Vector3(); plateU = new THREE.Vector3(); }
+    for (i = 0; i < textSprites.length; i++) {
+      var pt = textSprites[i];
+      if (pt.step.n !== chosen || !pt.sprite.visible || !pt.w) { continue; }
+      pt.sprite.getWorldPosition(plateC);
+      plateR.setFromMatrixColumn(camera.matrixWorld, 0).multiplyScalar(pt.sprite.scale.x / 2);
+      plateU.setFromMatrixColumn(camera.matrixWorld, 1).multiplyScalar(pt.sprite.scale.y / 2);
+      tmpP.copy(plateC).sub(plateR).add(plateU).project(camera);
+      tmpN.copy(plateC).add(plateR).sub(plateU).project(camera);
+      if (tmpP.z < 1 && tmpN.z < 1) { plate = [(tmpP.x * 0.5 + 0.5) * W, (-tmpP.y * 0.5 + 0.5) * H, (tmpN.x * 0.5 + 0.5) * W, (-tmpN.y * 0.5 + 0.5) * H, pt.step.n]; }
+    }
     for (i = 0; i < data.steps.length; i++) {
       s = data.steps[i];
       if (!s.group || !s.group.visible) { continue; }
@@ -1188,6 +1218,8 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       if (!isFinite(tx) || !isFinite(ty)) { continue; }
       for (k = 0; k < hudBoxes.length; k++) { if (tx > hudBoxes[k][0] && tx < hudBoxes[k][2] && ty > hudBoxes[k][1] && ty < hudBoxes[k][3]) { under = true; break; } }
       if (under) { continue; }
+      /* another step's flag does not sit on the words being read */
+      if (plate && s.n !== plate[4] && tx > plate[0] - 16 && tx < plate[2] + 16 && ty > plate[1] + 6 && ty < plate[3] + 40) { continue; }
       shown.push({ s: s, x: tx, y: ty, d: d });
     }
     shown.sort(function (a, b) { return (b.s.n === selected) - (a.s.n === selected) || a.d - b.d; });
