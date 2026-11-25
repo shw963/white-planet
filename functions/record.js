@@ -56,6 +56,7 @@ export async function onRequestGet(context) {
     '<link rel="canonical" href="' + SITE + "/record" + (lang === "ko" ? "?lang=ko" : "") + '">' +
     '<link rel="alternate" hreflang="en" href="' + SITE + '/record"><link rel="alternate" hreflang="ko" href="' + SITE + '/record?lang=ko">' +
     '<link rel="alternate" type="application/atom+xml" title="' + NAME + '" href="/feed.xml">' +
+    '<link rel="icon" href="/favicon.svg" type="image/svg+xml">' +
     '<meta property="og:title" content="' + esc(title) + '"><meta property="og:description" content="' + esc(LINE[lang]) + '"><meta property="og:image" content="' + SITE + '/og.jpg">' +
     "<style>body{margin:0;background:#16181f;color:#d9dde6;font:16px/1.75 system-ui,-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif}" +
     "main{max-width:68ch;margin:0 auto;padding:40px 22px 96px}a{color:#eef1f6}h1{font-size:22px;font-weight:600;letter-spacing:.02em;margin:0 0 6px}" +

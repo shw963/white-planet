@@ -2,6 +2,8 @@
 // What is kept: for three days, a random id the visitor's own browser made up; and per day one number and
 // the names of the sites visitors came from, each with a count. GET ?from=1 gives those names for the last days.
 
+const DAY_CAP = 200;
+
 function json(body, status) {
   return new Response(JSON.stringify(body), {
     status: status || 200,
@@ -50,7 +52,8 @@ export async function onRequestPost(context) {
   // a search engine reading the page is not a visitor
   if (/bot|crawl|spider|slurp|yeti|preview|headless|lighthouse|inspect/i.test(request.headers.get("user-agent") || "")) return json({ state: "read", day, today });
   try {
-    if (!(await env.KNOCKS.get(key))) {
+    // no more than this many new visitors are counted in a day, so that a flood cannot use up the day's writes
+    if (today < DAY_CAP && !(await env.KNOCKS.get(key))) {
       await env.KNOCKS.put(key, "1", { expirationTtl: 60 * 60 * 24 * 3 });
       today += 1;
       await env.KNOCKS.put(total, String(today));

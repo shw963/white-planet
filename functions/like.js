@@ -3,6 +3,8 @@
 // The likes are kept outside the repository, so the builder does not read them. A step's count is given only to
 // a visitor who has liked that step, and never written into the record. LIKES_OPEN lets the keeper open all of them.
 
+const LIKES_A_DAY = 150;
+
 function json(body, status) {
   return new Response(JSON.stringify(body), {
     status: status || 200,
@@ -71,7 +73,15 @@ export async function onRequestPost(context) {
     await env.KNOCKS.delete(key);
     return json({ state: "taken back" });
   }
-  await env.KNOCKS.put(key, new Date().toISOString().slice(0, 10));
+  // no more than this many likes are taken in a day, from everyone together: a flood of made-up likes stops there,
+  // and nothing about a visitor has to be kept to stop it
+  const day = new Date().toISOString().slice(0, 10), tally_key = "likes-day:" + day;
+  const taken = Number(await env.KNOCKS.get(tally_key)) || 0;
+  if (taken >= LIKES_A_DAY) return json({ state: "full" }, 429);
+  if (!(await env.KNOCKS.get(key))) {
+    await env.KNOCKS.put(tally_key, String(taken + 1), { expirationTtl: 60 * 60 * 24 * 3 });
+  }
+  await env.KNOCKS.put(key, day);
   // the count of this one step, for the one who has just liked it; a listing can lag behind a write, so their own like is counted in
   let count = 1;
   try {
