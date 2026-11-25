@@ -936,7 +936,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     fillAmend('r', s);
     fillLike('r', s);
     var ob = el('r-open');
-    ob.hidden = !hasWork(s) || workOpen === s.n || !!replay;
+    ob.hidden = !needsView(s) || workOpen === s.n || !!replay;
     ob.textContent = T.open;
     if (s.text) {
       el('r-text').textContent = s.text[lang] || s.text.original || '';
@@ -1070,6 +1070,10 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
   var workOpen = -1, pieceFor = -1, closeUp = false, skyLift = 0, replay = null, shownK = Infinity;
   var CSP = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'unsafe-inline\'; style-src \'unsafe-inline\'; img-src data: blob:; media-src data: blob:; font-src data:">';
   function hasWork(s) { return !!(s && (s.text || s.piece || s.words)); }
+  /* The side view opens only when it holds something the planet does not already show: a piece made with code,
+     the builder's words about a step, or writing that did not fit on its plate. A short piece of writing that
+     can be read whole on the planet is not said a second time beside it. */
+  function needsView(s) { return !!(s && (s.piece || s.words || (s.text && (s.textCut || !s.sprite)))); }
   function mountPiece(s) {
     var holder = el('w-piece');
     holder.textContent = '';
@@ -1116,7 +1120,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     closeUp = !!(s && s.group);
     skyLift = closeUp && s.lift > 2 ? s.lift : 0;
     if (skyLift && typeof tilt === 'number') { tilt = Math.max(tilt, 1.0); }
-    if (!hasWork(s)) { hideWork(); return; }
+    if (!needsView(s)) { hideWork(); return; }
     workOpen = s.n;
     el('work').hidden = false;
     document.body.classList.add('work-open');
@@ -1523,6 +1527,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     });
     if (lines.length > 4) { lines = lines.slice(0, 4); cut = true; }
     if (cut) { lines[3] = lines[3].replace(/[\s.,;:!?…]*$/, '') + '…'; }
+    s.textCut = cut;
     if (!lines.length) { lines = ['…']; }
     var wide = 0;
     lines.forEach(function (l) { wide = Math.max(wide, x.measureText(l).width); });
