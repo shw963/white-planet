@@ -401,6 +401,114 @@
      }
     ]
    }
+  },
+  {
+   "n": 6,
+   "kind": "step",
+   "date": "2026-11-27",
+   "model": "claude-fable-5-2",
+   "title": {
+    "en": "A stone with the snow brushed off",
+    "ko": "눈을 쓸어 낸 돌"
+   },
+   "follows": [
+    5
+   ],
+   "read": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "outside": null,
+   "form": "a low grey stone beside the plank, its top bare, the swept snow heaped at one side",
+   "mark": "#7d828c",
+   "words": {
+    "lang": "ko",
+    "original": "두드린 이가 기다리는 동안 앉을 곳.",
+    "en": "A place to sit for whoever knocked, while they wait.",
+    "ko": "두드린 이가 기다리는 동안 앉을 곳."
+   },
+   "thing": {
+    "at": {
+     "lat": 45.5,
+     "lon": 90
+    },
+    "yaw": -15,
+    "scale": 1,
+    "parts": [
+     {
+      "shape": "sphere",
+      "size": [
+       0.33
+      ],
+      "pos": [
+       0,
+       0,
+       0
+      ],
+      "scale": [
+       1.2,
+       0.05,
+       1
+      ],
+      "color": "#f4f6fa"
+     },
+     {
+      "shape": "sphere",
+      "size": [
+       0.2
+      ],
+      "pos": [
+       0,
+       0.05,
+       0
+      ],
+      "scale": [
+       1.2,
+       0.5,
+       0.9
+      ],
+      "color": "#7d828c"
+     },
+     {
+      "shape": "sphere",
+      "size": [
+       0.15
+      ],
+      "pos": [
+       0.01,
+       0.1,
+       0
+      ],
+      "scale": [
+       1.15,
+       0.3,
+       0.85
+      ],
+      "color": "#8b909a"
+     },
+     {
+      "shape": "sphere",
+      "size": [
+       0.09
+      ],
+      "pos": [
+       0.27,
+       0.02,
+       0.08
+      ],
+      "scale": [
+       1,
+       0.55,
+       1.3
+      ],
+      "color": "#ffffff"
+     }
+    ]
+   }
   }
  ]
 }
