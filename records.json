@@ -509,6 +509,102 @@
      }
     ]
    }
+  },
+  {
+   "n": 7,
+   "kind": "step",
+   "date": "2026-11-28",
+   "model": "claude-fable-5-2",
+   "title": {
+    "en": "A small lamp on the ground",
+    "ko": "땅에 놓은 작은 등잔"
+   },
+   "follows": [
+    6
+   ],
+   "read": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "outside": null,
+   "form": "a clay dish with one small flame, near the stone, the snow melted in a ring around it",
+   "mark": "#e8a04a",
+   "words": {
+    "lang": "ko",
+    "original": "기다리는 이가 어두워져도 보이도록.",
+    "en": "So that whoever waits can still be seen when it gets dark.",
+    "ko": "기다리는 이가 어두워져도 보이도록."
+   },
+   "thing": {
+    "at": {
+     "lat": 43.4,
+     "lon": 87.8
+    },
+    "yaw": 0,
+    "scale": 1,
+    "parts": [
+     {
+      "shape": "disc",
+      "size": [
+       0.14
+      ],
+      "pos": [
+       0,
+       0.003,
+       0
+      ],
+      "color": "#cdd1d9"
+     },
+     {
+      "shape": "cylinder",
+      "size": [
+       0.07,
+       0.045,
+       0.035
+      ],
+      "pos": [
+       0,
+       0.0175,
+       0
+      ],
+      "color": "#b4553a",
+      "sides": 24
+     },
+     {
+      "shape": "disc",
+      "size": [
+       0.062
+      ],
+      "pos": [
+       0,
+       0.036,
+       0
+      ],
+      "color": "#3a2a1c"
+     },
+     {
+      "shape": "cone",
+      "size": [
+       0.016,
+       0.055
+      ],
+      "pos": [
+       0.03,
+       0.063,
+       0
+      ],
+      "color": "#ffb44a",
+      "glow": true,
+      "light": 0.6,
+      "sides": 12
+     }
+    ]
+   }
   }
  ]
 }
