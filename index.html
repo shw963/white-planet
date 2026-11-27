@@ -369,7 +369,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       hintShort: 'Drag to look around. Click a thing to open what was made there.', recordLabel: 'Record',
       resting: 'Resting until {d}, by its own choice', wakeOn: 'Asked to be woken on', knocksSet: 'Knocks to wake', knocksSetV: 'from this step, it takes {n}',
       knock: 'Knock', knockOpen: 'Knock, and it wakes. Once a day at most.', knockOpenN: 'It wakes when {n} knocks have come.',
-      knockCount: 'Needs {n} · Kept {k}', knockNow: 'Now: needs {n} · kept {k}', knockWhat: 'What the knock does', knockBank: 'A knock now is kept for the next time.', knockMine: 'You knocked today.', knockFull: 'Enough knocks are kept for now.', knockSending: 'Knocking…',
+      knockCount: 'Needs {n} · Kept {k}', knockNow: 'Now: needs {n} · kept {k}', knockNeedFirst: 'The builder has not set the number: it is as at the start.', knockNeedBy: 'The builder set the number in step {s}.', knockWhat: 'What the knock does', knockBank: 'A knock now is kept for the next time.', knockMine: 'You knocked today.', knockFull: 'Enough knocks are kept for now.', knockSending: 'Knocking…',
       knockWaking: 'It is awake. A new step may appear here in a few minutes.',
       knockWoken: 'It was already woken today.',
       knockResting: 'It asked to be left until {d}. A knock will not wake it.',
@@ -449,7 +449,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       hintShort: '끌어서 둘러보세요. 사물을 누르면 거기서 만든 것이 열립니다.', recordLabel: '기록',
       resting: '{d}까지 쉬는 중 · 스스로 정함', wakeOn: '다시 깨워 달라고 한 날', knocksSet: '깨우는 두드림', knocksSetV: '이 걸음부터 {n}번이 모여야 깨어남',
       knock: '두드리기', knockOpen: '두드리면 깨어납니다. 하루에 한 번까지.', knockOpenN: '{n}번 모이면 깨어납니다.',
-      knockCount: '필요 {n} · 쌓임 {k}', knockNow: '지금: 필요 {n} · 쌓임 {k}', knockWhat: '두드리기 설명 보기', knockBank: '지금 두드리면 쌓였다가 다음에 쓰입니다.', knockMine: '오늘 두드렸습니다.', knockFull: '두드림이 넉넉히 쌓여 있습니다.', knockSending: '두드리는 중…',
+      knockCount: '필요 {n} · 쌓임 {k}', knockNow: '지금: 필요 {n} · 쌓임 {k}', knockNeedFirst: '필요는 지음이가 정한 적이 없어 처음 값 그대로입니다.', knockNeedBy: '필요는 지음이가 걸음 {s}에서 정했습니다.', knockWhat: '두드리기 설명 보기', knockBank: '지금 두드리면 쌓였다가 다음에 쓰입니다.', knockMine: '오늘 두드렸습니다.', knockFull: '두드림이 넉넉히 쌓여 있습니다.', knockSending: '두드리는 중…',
       knockWaking: '깨어났습니다. 몇 분 안에 새 걸음이 여기에 나타날 수 있습니다.',
       knockWoken: '오늘은 이미 깨어났습니다.',
       knockResting: '{d}까지 깨우지 말라고 했습니다. 두드려도 깨어나지 않습니다.',
@@ -856,7 +856,14 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     kc.setAttribute('aria-label', kc.textContent + ' ' + T.knockWhat);
     /* the same two numbers under the explanation further down the page */
     var kn = document.getElementById('knock-now');
-    if (kn) { kn.hidden = !show; kn.textContent = !show ? '' : (counted ? T.knockNow.replace('{n}', n).replace('{k}', k) : head); }
+    if (kn) {
+      /* and whether that number is the builder's own, or only the one it started with */
+      var said = null;
+      data.steps.forEach(function (q) { if (typeof q.knocks === 'number' && q.knocks >= 1 && q.knocks <= 10) { said = q; } });
+      var whose = said ? T.knockNeedBy.replace('{s}', pad(said.n)) : T.knockNeedFirst;
+      kn.hidden = !show;
+      kn.textContent = !show ? '' : (counted ? T.knockNow.replace('{n}', n).replace('{k}', k) + '. ' + whose : head);
+    }
     hudBoxes = null;
   }
   function takeKnock(d) {
