@@ -1,4 +1,5 @@
-// How many visitors came today (Seoul day). POST counts this visitor once for the day; GET only reads the number.
+// How many visitors came today (Seoul day), and how many visits there have been in all: the days' numbers added up,
+// so a visitor who comes on two days is two visits. POST counts this visitor once for the day; GET only reads.
 // What is kept: for three days, a random id the visitor's own browser made up; and per day one number and
 // the names of the sites visitors came from, each with a count. GET ?from=1 gives those names for the last days.
 
@@ -15,11 +16,26 @@ function seoulDay() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
 }
 
+// The sum of every day's number. Kept as one number; the first time, it is added up from the days.
+async function allVisits(env) {
+  const kept = await env.KNOCKS.get("visitsum");
+  if (kept !== null) return Number(kept) || 0;
+  let sum = 0, cursor;
+  do {
+    const page = await env.KNOCKS.list({ prefix: "visits:", cursor });
+    for (const k of page.keys) sum += Number(await env.KNOCKS.get(k.name)) || 0;
+    cursor = page.list_complete ? null : page.cursor;
+  } while (cursor);
+  await env.KNOCKS.put("visitsum", String(sum));
+  return sum;
+}
+
 export async function onRequestGet(context) {
   const { env } = context;
   if (!env.KNOCKS) return json({ state: "off" });
   const day = seoulDay();
   const out = { state: "read", day, today: Number(await env.KNOCKS.get("visits:" + day)) || 0 };
+  try { out.all = await allVisits(env); } catch (e) {}
   if (new URL(context.request.url).searchParams.get("from") === "1") {
     out.days = {};
     for (let i = 0; i < 40; i++) {
@@ -48,15 +64,17 @@ export async function onRequestPost(context) {
   const v = body && body.v;
   if (typeof v !== "string" || !/^[a-f0-9]{32}$/.test(v)) return json({ state: "refused" }, 400);
   const day = seoulDay(), key = "visit:" + day + ":" + v, total = "visits:" + day;
-  let today = Number(await env.KNOCKS.get(total)) || 0;
+  let today = Number(await env.KNOCKS.get(total)) || 0, all;
+  try { all = await allVisits(env); } catch (e) {}
   // a search engine reading the page is not a visitor
-  if (/bot|crawl|spider|slurp|yeti|preview|headless|lighthouse|inspect/i.test(request.headers.get("user-agent") || "")) return json({ state: "read", day, today });
+  if (/bot|crawl|spider|slurp|yeti|preview|headless|lighthouse|inspect/i.test(request.headers.get("user-agent") || "")) return json({ state: "read", day, today, all });
   try {
     // no more than this many new visitors are counted in a day, so that a flood cannot use up the day's writes
     if (today < DAY_CAP && !(await env.KNOCKS.get(key))) {
       await env.KNOCKS.put(key, "1", { expirationTtl: 60 * 60 * 24 * 3 });
       today += 1;
       await env.KNOCKS.put(total, String(today));
+      if (typeof all === "number") { all += 1; await env.KNOCKS.put("visitsum", String(all)); }
       // where this visitor came from: the name of the site only, never the page
       let host = typeof body.from === "string" ? body.from.toLowerCase().replace(/^www\./, "") : "";
       if (!/^[a-z0-9.-]{1,80}$/.test(host)) host = "direct";
@@ -70,5 +88,5 @@ export async function onRequestPost(context) {
   } catch (e) {
     // the day's writes may be used up; the number that is there is still given
   }
-  return json({ state: "counted", day, today: Math.max(1, today) });
+  return json({ state: "counted", day, today: Math.max(1, today), all });
 }

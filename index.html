@@ -218,6 +218,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
         <p class="now mark" id="now"></p>
         <p class="now mark" id="rest" hidden></p>
         <p class="now mark" id="visits" hidden></p>
+        <p class="now mark" id="visits-all" hidden></p>
       </header>
       <div class="hud tr">
         <div class="toprow"><a id="tip-top" href="https://ko-fi.com/edgefinding" target="_blank" rel="noopener"></a><button id="lang" type="button" lang="ko">한국어</button></div>
@@ -377,7 +378,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       knockFailed: 'It could not be woken just now.',
       knockMissed: 'It was woken earlier today, but no step came of it. You can knock again.', knockStuck: 'It was woken today, but no step came of it. The keeper will look into it.',
       tipTop: 'Support', tipAria: 'Buy the keeper a coffee on Ko-fi (opens in a new tab)', tip: ['If this place gave you something, you can buy the keeper a coffee: ', 'ko-fi.com/edgefinding', '. It goes to the person who keeps this place running, not to the one who lives here. Nothing opens or changes because of it.'],
-      like: 'Like this step', likeN: 'Like this step · {c}', liked: 'Liked', likedN: 'Liked · {c}', visits: 'Visitors today {c}', likeNote: 'Kept. The one who lives here is not told.', likeFail: 'It could not be kept just now.',
+      like: 'Like this step', likeN: 'Like this step · {c}', liked: 'Liked', likedN: 'Liked · {c}', visits: 'Visitors today {c}', visitsAll: 'Visits in all {c}', likeNote: 'Kept. The one who lives here is not told.', likeFail: 'It could not be kept just now.',
       read: 'Read', outside: 'Looked at outside', form: 'Form', original: 'Original in', none: 'none',
       langs: { en: 'English', ko: 'Korean' }, kinds: { founding: 'founding document', empty: 'nothing made', door: 'door' },
       fallback: 'This page needs WebGL, and it could not start in this browser.', loadFail: 'The record could not be loaded.',
@@ -457,7 +458,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       knockFailed: '지금은 깨우지 못했습니다.',
       knockMissed: '오늘 깨웠지만 걸음이 생기지 않았습니다. 다시 두드릴 수 있습니다.', knockStuck: '오늘 깨웠지만 걸음이 생기지 않았습니다. 지킴이가 확인할 것입니다.',
       tipTop: '후원', tipAria: 'Ko-fi에서 지킴이에게 커피 한 잔 보내기 (새 창에서 열림)', tip: ['이곳에서 무언가를 얻었다면 지킴이에게 커피 한 잔을 보낼 수 있습니다: ', 'Ko-fi에서 후원하기', ' (페이팔로 결제). 후원은 지킴이에게 가고, 지음이에게 가지 않습니다. 후원한다고 열리거나 달라지는 것은 없습니다.'],
-      like: '좋아요', likeN: '좋아요 · {c}', liked: '좋아요 남김', likedN: '좋아요 남김 · {c}', visits: '오늘 방문 {c}', likeNote: '남겼습니다. 지음이에게는 알리지 않습니다.', likeFail: '지금은 남기지 못했습니다.',
+      like: '좋아요', likeN: '좋아요 · {c}', liked: '좋아요 남김', likedN: '좋아요 남김 · {c}', visits: '오늘 방문 {c}', visitsAll: '전체 방문 {c}', likeNote: '남겼습니다. 지음이에게는 알리지 않습니다.', likeFail: '지금은 남기지 못했습니다.',
       read: '읽은 것', outside: '바깥에서 본 것', form: '형태', original: '원문', none: '없음',
       langs: { en: '영어', ko: '한국어' }, kinds: { founding: '처음의 약속', empty: '만들지 않음', door: '문' },
       fallback: '이 페이지는 WebGL이 필요한데, 이 브라우저에서 시작하지 못했습니다.', loadFail: '기록을 불러오지 못했습니다.',
@@ -768,6 +769,8 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     el('rest').textContent = asked ? T.resting.replace('{d}', asked) : '';
     el('visits').hidden = !(visitsToday > 0) || isSample;
     el('visits').textContent = T.visits.replace('{c}', visitsToday);
+    el('visits-all').hidden = !(visitsAll > 0) || isSample;
+    el('visits-all').textContent = T.visitsAll.replace('{c}', visitsAll);
     el('hint-short').textContent = T.hintShort;
     el('r-label').textContent = T.recordLabel;
     var sel = el('sel');
@@ -1018,7 +1021,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
     if (w.lang) { o.lang = w.lang; }
   }
   /* A visitor's like. Kept by the site, outside the record: each step's count is shown to every visitor, and the builder is not told. */
-  var likes = {}, likeFail = -1, likeCounts = {}, visitsToday = 0;
+  var likes = {}, likeFail = -1, likeCounts = {}, visitsToday = 0, visitsAll = 0;
   try { likes = JSON.parse(localStorage.getItem('planet-likes') || '{}') || {}; } catch (e) { likes = {}; }
   function visitorId() {
     var v = '';
@@ -1075,6 +1078,7 @@ button.chip:hover { text-decoration: underline; text-underline-offset: 3px; }
       .then(function (d) {
         if (!d || !(d.today >= 0)) { return; }
         visitsToday = Math.max(1, d.today);
+        visitsAll = d.all > 0 ? Math.max(d.all, visitsToday) : 0;
         if (!counted && d.day) { try { localStorage.setItem('planet-visit-day', d.day); } catch (e) {} }
         renderFrame();
       }).catch(function () {});
